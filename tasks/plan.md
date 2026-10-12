@@ -59,7 +59,7 @@ T21 ── T22 bundler ── T23 CI + Pages + CONTRIBUTING ── T24 README �
 ## Task list
 
 ### Phase 0: Scaffold and spike
-- [ ] T1 Repo scaffold, guards, dev server
+- [x] T1 Repo scaffold, guards, dev server
 - [ ] T2 Air Bank pdf.js spike
 
 ### Checkpoint A: Spike decided

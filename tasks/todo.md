@@ -13,15 +13,15 @@ answered), the first commit, and a local `.private-denylist` built from Martin's
 and names (never committed).
 
 **Acceptance criteria:**
-- [ ] `package.json` with `"type": "module"` and scripts `test`, `serve`, `build`, `samples`, `check`; no dependencies
-- [ ] `.gitignore` blocks `dist/`, `node_modules/`, `.private-denylist`, and `*.csv` and `*.pdf` everywhere except `samples/`
-- [ ] `tests/no-personal-data.test.mjs` scans every tracked file against `.private-denylist`, skips when the file is absent, and fails on a planted test string
-- [ ] `scripts/serve.mjs` serves the repo root with correct MIME types for `.mjs`, `.json`, `.pdf`
+- [x] `package.json` with `"type": "module"` and scripts `test`, `serve`, `build`, `samples`, `check`; no dependencies
+- [x] `.gitignore` blocks `dist/`, `node_modules/`, `.private-denylist`, and `*.csv` and `*.pdf` everywhere except `samples/`
+- [x] `tests/no-personal-data.test.mjs` scans every tracked file against `.private-denylist`, skips when the file is absent, and fails on a planted test string
+- [x] `scripts/serve.mjs` serves the repo root with correct MIME types for `.mjs`, `.json`, `.pdf`
 
 **Verification:**
-- [ ] `node --test tests/` passes
-- [ ] `node scripts/serve.mjs` then `curl -I http://localhost:8080/index.html` returns 200 and `text/html`
-- [ ] Manual: planting one denylist string in a scratch file makes the test fail
+- [x] `node --test tests/` passes
+- [x] `node scripts/serve.mjs` then `curl -I http://localhost:8080/index.html` returns 200 and `text/html`
+- [x] Manual: planting one denylist string in a scratch file makes the test fail
 
 **Dependencies:** None
 **Files:** `package.json`, `.gitignore`, `LICENSE`, `scripts/serve.mjs`, `tests/no-personal-data.test.mjs`

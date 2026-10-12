@@ -1,0 +1,19 @@
+# build output
+dist/
+
+# never needed, we have no dependencies
+node_modules/
+
+# local list of personal strings used by tests/no-personal-data.test.mjs
+.private-denylist
+
+# real bank exports must never enter the repo; only the synthetic samples are allowed
+*.csv
+*.pdf
+!samples/*.csv
+!samples/*.pdf
+
+# spike output and scratch files
+scripts/spike/out/
+*.png
+!docs/*.png
