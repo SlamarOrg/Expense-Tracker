@@ -1,17 +1,18 @@
 #!/usr/bin/env node
-// Headless render check, the one browser-level test. Opens the page in headless Chrome or Edge,
-// waits for the virtual time budget, dumps the DOM and asserts that the dashboard set
-// data-ready="1" on <body> and that #errlog is empty.
+// Headless render check, the browser-level smoke test. Opens the page in headless Chrome or Edge
+// through the DevTools Protocol (scripts/cdp.mjs), waits until <body data-ready="1"> or an error,
+// and fails when #errlog has any text or the page throws.
 //
 //   node scripts/render-check.mjs <url-or-file> [--theme auto|light|dark] [--lang en|cs]
-//                                 [--screenshot out.png] [--budget 30000] [--width 1400] [--height 2600]
+//                                 [--screenshot out.png] [--width 1400] [--height 1000] [--timeout 30000]
 //
-// The browser comes from $BROWSER, otherwise the usual install paths are tried.
+// The browser comes from $BROWSER, otherwise the usual install paths are tried. Each run uses a
+// fresh throwaway profile, so IndexedDB and localStorage start empty.
 
-import { execFile } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { launch } from './cdp.mjs';
 
 const CANDIDATES = [
   process.env.BROWSER,
@@ -36,24 +37,38 @@ export function toUrl(target, params = {}) {
 
 export function inspectDom(html) {
   const ready = /<body[^>]*\sdata-ready="([^"]*)"/.exec(html);
+  const empty = /<body[^>]*\sdata-empty="1"/.test(html);
   const err = /<div id="errlog"[^>]*>([\s\S]*?)<\/div>/.exec(html);
-  return { ready: ready ? ready[1] : null, errors: err ? err[1].trim() : '' };
+  return { ready: ready ? ready[1] : null, errors: err ? err[1].trim() : '', empty };
 }
 
-/** @returns {Promise<{ok: boolean, ready: string|null, errors: string, html: string}>} */
-export function renderCheck(target, { theme, lang, screenshot, budget = 30000, width = 1400, height = 2600, browser = findBrowser() } = {}) {
-  if (!browser) return Promise.reject(new Error('no Chrome or Edge found; set $BROWSER'));
-  const url = toUrl(target, { theme, lang });
-  const args = ['--headless=new', '--disable-gpu', '--no-sandbox', '--hide-scrollbars', `--virtual-time-budget=${budget}`, `--window-size=${width},${height}`, '--dump-dom'];
-  if (screenshot) args.push(`--screenshot=${resolve(screenshot)}`);
-  args.push(url);
-  return new Promise((resolvePromise, reject) => {
-    execFile(browser, args, { maxBuffer: 64 * 1024 * 1024 }, (error, stdout) => {
-      if (error && !stdout) { reject(error); return; }
-      const { ready, errors } = inspectDom(stdout);
-      resolvePromise({ ok: ready === '1' && errors === '', ready, errors, html: stdout });
-    });
-  });
+const READY = '(document.body && document.body.dataset.ready === "1") || ((document.getElementById("errlog") || {}).textContent || "").trim() !== ""';
+
+/** Check an already open page (cdp.mjs Page). */
+export async function checkPage(page, { timeout = 30000 } = {}) {
+  await page.waitFor(READY, { timeout }).catch(() => {});
+  const html = await page.eval('document.documentElement.outerHTML');
+  const r = inspectDom(html);
+  const errors = [r.errors, ...page.exceptions].filter(Boolean).join('\n');
+  return { ok: r.ready === '1' && errors === '', ready: r.ready, errors, empty: r.empty, html };
+}
+
+/** @returns {Promise<{ok: boolean, ready: string|null, errors: string, empty: boolean, html: string}>} */
+export async function renderCheck(target, { theme, lang, screenshot, width = 1400, height = 1000, timeout = 30000, browser = findBrowser() } = {}) {
+  if (!browser) throw new Error('no Chrome or Edge found; set $BROWSER');
+  const b = await launch({ browser });
+  try {
+    const page = await b.newPage({ width, height });
+    await page.goto(toUrl(target, { theme, lang }));
+    const result = await checkPage(page, { timeout });
+    if (screenshot) {
+      await new Promise((r) => setTimeout(r, 400)); // let chart animations settle
+      await page.screenshot(resolve(screenshot));
+    }
+    return result;
+  } finally {
+    await b.close();
+  }
 }
 
 if (process.argv[1] && /render-check\.mjs$/.test(process.argv[1].replace(/\\/g, '/'))) {
@@ -62,12 +77,12 @@ if (process.argv[1] && /render-check\.mjs$/.test(process.argv[1].replace(/\\/g, 
   const theme = opt('--theme');
   const lang = opt('--lang');
   const screenshot = opt('--screenshot');
-  const budget = Number(opt('--budget') || 30000);
   const width = Number(opt('--width') || 1400);
-  const height = Number(opt('--height') || 2600);
+  const height = Number(opt('--height') || 1000);
+  const timeout = Number(opt('--timeout') || 30000);
   const target = args[0];
   if (!target) { console.error('usage: node scripts/render-check.mjs <url-or-file> [--theme dark] [--lang cs] [--screenshot out.png]'); process.exit(2); }
-  const r = await renderCheck(target, { theme, lang, screenshot, budget, width, height });
-  console.log(`${r.ok ? 'OK' : 'FAIL'} ${target}${theme ? ' theme=' + theme : ''}${lang ? ' lang=' + lang : ''}: data-ready=${JSON.stringify(r.ready)}${r.errors ? '\n' + r.errors : ''}`);
+  const r = await renderCheck(target, { theme, lang, screenshot, width, height, timeout });
+  console.log(`${r.ok ? 'OK' : 'FAIL'} ${target}${theme ? ' theme=' + theme : ''}${lang ? ' lang=' + lang : ''}: data-ready=${JSON.stringify(r.ready)}${r.empty ? ' (empty state)' : ''}${r.errors ? '\n' + r.errors : ''}`);
   process.exit(r.ok ? 0 : 1);
 }

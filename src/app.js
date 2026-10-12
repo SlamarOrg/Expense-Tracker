@@ -1,69 +1,98 @@
-// Wires parsers, classifier, overrides and dashboard together. Development version: loads the
-// three sample statements over the dev server, parses and classifies them, and mounts the
-// dashboard. `?empty=1` shows the empty state, `?theme=dark` forces a theme (render check).
+// Wires store, import flow, classifier, overrides and dashboard together.
+//
+// Normal mode: data lives in this browser's IndexedDB; statements are imported by drag and drop
+// or the file picker. Demo mode (?demo=1, or the GitHub Pages build): a memory store preloaded
+// with the fake sample statements, nothing persists. ?theme=dark forces a theme (render check).
 
+import defaultRules from '../rules/default-cz.json' with { type: 'json' };
+import sampleSettings from '../samples/sample-settings.json' with { type: 'json' };
 import { mountDashboard } from './ui/dashboard.js';
-import { parseFile, dedupe, FORMATS } from './parsers/index.js';
+import { setupImport, readFiles, renderImportResults, setNotice } from './ui/import.js';
 import { Rules } from './classifier/rules.js';
-import { classify } from './classifier/classify.js';
 import { createOverrides } from './store/overrides.js';
+import { openStore } from './store/db.js';
+import { importFiles, loadTransactions, sourcesFromImports } from './import-flow.js';
+import { mergeAccounts } from './settings-model.js';
+import { getSampleFiles } from './samples-source.js';
 import { loadPdfjs } from './pdfjs-loader.js';
 
-const SAMPLES = ['samples/fio-sample.csv', 'samples/revolut-sample.csv', 'samples/airbank-sample.pdf'];
-const OVERRIDES_KEY = 'spend-overrides';
+const params = new URLSearchParams(location.search);
+const DEMO = globalThis.BSD_DEMO === true || params.get('demo') === '1';
+const clone = (v) => JSON.parse(JSON.stringify(v));
+const ignore = () => {};
 
-async function fetchJson(path) { return (await fetch(path)).json(); }
-
-function urlParams() { return new URLSearchParams(location.search); }
+const app = { store: null, rulesJson: null, rules: null, overrides: null, dashboard: null };
 
 function applyUrlParams() {
-  // ?theme=dark lets the headless render check force a theme; the dashboard reads it from storage
-  const theme = urlParams().get('theme');
+  const theme = params.get('theme');
   if (theme && ['auto', 'light', 'dark'].includes(theme)) { try { localStorage.setItem('spend-theme', theme); } catch { /* ignore */ } }
 }
 
-function overridesStore() {
-  let pending = {};
-  try { pending = JSON.parse(localStorage.getItem(OVERRIDES_KEY) || '{}'); } catch { /* ignore */ }
-  return createOverrides({ saved: {}, pending, persist: (map) => { try { localStorage.setItem(OVERRIDES_KEY, JSON.stringify(map)); } catch { /* ignore */ } } });
+/** Re-classify every stored row with the current rules and remount the dashboard. */
+async function refresh() {
+  app.rules = Rules.from(app.rulesJson);
+  const tx = await loadTransactions(app.store, app.rules);
+  const imports = await app.store.listImports();
+  if (app.dashboard) { app.dashboard.destroy(); app.dashboard = null; }
+  app.dashboard = mountDashboard({
+    tx,
+    categories: app.rules.categoryNames,
+    folded: app.rules.folded,
+    fx: app.rules.fx,
+    overridesStore: app.overrides,
+    meta: { generated: imports.length ? imports[imports.length - 1].at : '', sources: sourcesFromImports(imports) },
+  });
 }
 
-async function loadSamples(rules, pdfjs) {
-  const sources = [];
-  const raw = [];
-  for (const path of SAMPLES) {
-    const bytes = new Uint8Array(await (await fetch(path)).arrayBuffer());
-    const name = path.split('/').pop();
-    const res = await parseFile({ name, bytes }, { pdfjs });
-    if (res.error) { console.error(res.error); continue; }
-    const s = res.summary;
-    sources.push({ bank: FORMATS[res.format].bank, file: name, rows: res.rows.length,
-      debits_match: s.ok, statement_debits: s.debits, parsed_debits: s.parsedDebits, unparsed_blocks: (s.problems || []).length });
-    raw.push(...res.rows);
+async function importReadFiles(files, title) {
+  const results = await importFiles(files, { store: app.store, rules: Rules.from(app.rulesJson), pdfjs: await loadPdfjs() });
+  await refresh();
+  renderImportResults({ results, warnings: app.rules.warnings, title });
+  return results;
+}
+
+async function handleFiles(fileList) {
+  renderImportResults({ busy: `Reading ${fileList.length} file${fileList.length === 1 ? '' : 's'}…` });
+  try {
+    await importReadFiles(await readFiles(fileList));
+  } catch (e) {
+    renderImportResults({ results: [{ name: 'Import failed', error: String(e && e.message ? e.message : e) }] });
   }
-  const { rows } = dedupe(raw);
-  const tx = rows.map((r) => classify(r, rules)).sort((a, b) => (a.d < b.d ? -1 : a.d > b.d ? 1 : 0));
-  return { tx, sources };
+}
+
+/** Import the fake sample statements, with the fake accounts they need to classify fully. */
+async function loadSamples() {
+  renderImportResults({ busy: 'Loading the sample statements…', title: 'Sample data' });
+  try {
+    app.rulesJson = mergeAccounts(app.rulesJson, sampleSettings);
+    await app.store.setSetting('rules', app.rulesJson);
+    await importReadFiles(await getSampleFiles(), 'Sample data');
+  } catch (e) {
+    renderImportResults({ results: [{ name: 'Sample data', error: String(e && e.message ? e.message : e) }] });
+  }
 }
 
 async function main() {
   applyUrlParams();
-  const base = JSON.parse(JSON.stringify(await fetchJson('rules/default-cz.json')));
-  const sampleSettings = await fetchJson('samples/sample-settings.json');
-  for (const key of ['own_accounts', 'investment_accounts', 'category_accounts']) base[key] = { ...(base[key] || {}), ...(sampleSettings[key] || {}) };
-  const rules = Rules.from(base);
-  const overrides = overridesStore();
+  app.store = await openStore({ backend: DEMO ? 'memory' : 'indexeddb' });
+  if (DEMO) setNotice('Demo with fake sample data. Nothing you import here is saved. Download the dashboard to use it with your own statements.');
+  else if (app.store.fallbackReason) setNotice(app.store.fallbackReason, { warn: true });
 
-  let data = { tx: [], sources: [] };
-  if (urlParams().get('empty') !== '1') data = await loadSamples(rules, await loadPdfjs());
-  mountDashboard({
-    tx: data.tx,
-    categories: rules.categoryNames,
-    folded: rules.folded,
-    fx: rules.fx,
-    overridesStore: overrides,
-    meta: { generated: new Date().toISOString().slice(0, 19), sources: data.sources },
+  app.rulesJson = (await app.store.getSetting('rules', null)) || clone(defaultRules);
+  app.overrides = createOverrides({
+    saved: await app.store.getSetting('overridesSaved', {}),
+    pending: await app.store.getSetting('overrides', {}),
+    persist: (map) => { app.store.setSetting('overrides', map).catch(ignore); },
+    persistSaved: (map) => { app.store.setSetting('overridesSaved', map).catch(ignore); },
   });
+  setupImport({ onFiles: handleFiles, onSamples: loadSamples });
+
+  if (DEMO) {
+    await loadSamples();
+    document.getElementById('importPanel').hidden = true;
+  } else {
+    await refresh();
+  }
 }
 
 main();

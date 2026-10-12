@@ -326,13 +326,13 @@ per file showing bank, rows, kinds breakdown, dedup count, problems and the Air 
 then `putRows` and dashboard re-render.
 
 **Acceptance criteria:**
-- [ ] Drop three samples at once: three cards, correct counts, dashboard updates once
-- [ ] Unknown file shows an error card, nothing stored
-- [ ] Re-dropping a file shows "0 new rows"
+- [x] Drop three samples at once: three cards, correct counts, dashboard updates once
+- [x] Unknown file shows an error card, nothing stored
+- [x] Re-dropping a file shows "0 new rows"
 
 **Verification:**
-- [ ] `node --test tests/import-flow.test.mjs` runs the flow headlessly on the memory store with sample bytes
-- [ ] Manual in Chrome and Firefox over the dev server
+- [x] `node --test tests/import-flow.test.mjs` runs the flow headlessly on the memory store with sample bytes
+- [x] Manual in Chrome and Firefox over the dev server
 
 **Dependencies:** T16
 **Files:** `src/ui/import.js`, `src/app.js`, `src/styles.css`, `tests/import-flow.test.mjs`

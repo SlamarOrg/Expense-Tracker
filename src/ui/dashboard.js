@@ -29,7 +29,7 @@ export function mountDashboard(DATA) {
   const SLOT_ORDER = ['Groceries', 'Restaurants & cafés', 'Transport', 'Entertainment', 'Subscriptions', 'Shopping', 'Housing & utilities', 'Travel'];
   const OTHER_LABEL = 'Everything else';
   const INVEST = 'Investments';
-  const BANKS = ['FIO', 'Airbank', 'Revolut'];
+  const BANKS = ['FIO', 'Airbank', 'Revolut'].filter(b => TX.some(t => t.s === b));
   const ALL_CATS = (DATA.categories || []).slice();
   const DAY = 86400000;
 

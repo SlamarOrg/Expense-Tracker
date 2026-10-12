@@ -14,12 +14,19 @@
       <h1>Spending</h1>
       <p class="sub" id="subtitle">Loading…</p>
     </div>
-    <div class="seg" role="group" aria-label="Theme">
-      <button data-theme-btn="auto" aria-pressed="true">Auto</button>
-      <button data-theme-btn="light" aria-pressed="false">Light</button>
-      <button data-theme-btn="dark" aria-pressed="false">Dark</button>
+    <div class="top-actions">
+      <button class="btn" id="importBtn" type="button">Import statements</button>
+      <button class="btn" id="settingsBtn" type="button">Settings</button>
+      <div class="seg" role="group" aria-label="Theme">
+        <button data-theme-btn="auto" aria-pressed="true">Auto</button>
+        <button data-theme-btn="light" aria-pressed="false">Light</button>
+        <button data-theme-btn="dark" aria-pressed="false">Dark</button>
+      </div>
     </div>
   </header>
+
+  <div class="notice" id="notice" role="status" hidden></div>
+  <section class="card import-panel" id="importPanel" aria-live="polite" hidden></section>
 
   <section class="filters" aria-label="Filters">
     <div class="chips" id="presets"></div>
@@ -101,6 +108,8 @@
   <footer id="footer"></footer>
 </div>
 
+<div class="drop-overlay" id="dropOverlay" hidden><div>Drop statements to import</div></div>
+<dialog class="settings" id="settings" aria-labelledby="settingsTitle"></dialog>
 <div class="tip" id="tip" role="tooltip" aria-hidden="true"></div>
 <div id="errlog" aria-hidden="true"></div>
 <script>

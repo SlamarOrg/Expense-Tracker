@@ -54,9 +54,12 @@ The plan lives in `tasks/plan.md`, the task list in `tasks/todo.md`.
 - Plain JavaScript (ES2022 modules), HTML, CSS. No framework, no TypeScript, no bundler package.
 - Chart.js 4.4.4 (already in use), vendored.
 - pdf.js (`pdfjs-dist` 4.x legacy build), vendored, for Air Bank PDF text extraction.
-- Node 20 or newer for development only: tests, sample generator, static dev server, bundler.
-  Zero npm dependencies. `package.json` exists only for scripts and the `"type": "module"` flag.
-- Headless Chrome or Edge for the render check (preinstalled on GitHub `ubuntu-latest`).
+- Node 22 or newer for development only: tests, sample generator, static dev server, bundler,
+  and the DevTools Protocol driver behind the browser tests (it needs the built-in WebSocket).
+  Node 20 reached end of life in April 2026. Zero npm dependencies. `package.json` exists only for scripts and the `"type": "module"` flag.
+- Headless Chrome or Edge for the render check (preinstalled on GitHub `ubuntu-latest`), driven
+  over the DevTools Protocol: `--dump-dom` cannot be used because IndexedDB never opens in that
+  mode.
 - Browsers: current Chrome, Edge, Firefox, Safari. The release bundle must work from `file://`.
 
 ## Commands

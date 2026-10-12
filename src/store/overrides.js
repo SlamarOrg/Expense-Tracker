@@ -1,10 +1,11 @@
 // Merchant-to-category overrides chosen in the dashboard. They beat every rule for expense rows.
 // `saved` is the last exported or imported state, `pending` what the browser remembered since;
-// the "unsaved" badge shows the difference. `persist` is called with the full map on every change.
+// the "unsaved" badge shows the difference. `persist` is called with the full map on every change,
+// `persistSaved` with the new baseline whenever it is marked saved (export or import).
 
 const isCategory = (c) => typeof c === 'string' && c !== '' && c !== 'Other';
 
-export function createOverrides({ saved = {}, pending = {}, persist = () => {} } = {}) {
+export function createOverrides({ saved = {}, pending = {}, persist = () => {}, persistSaved = () => {} } = {}) {
   let savedCopy = { ...saved };
   const map = { ...saved, ...pending };
   const api = {
@@ -32,7 +33,9 @@ export function createOverrides({ saved = {}, pending = {}, persist = () => {} }
     },
     unsavedCount: () => Object.keys(api.unsaved()).length,
     savedCount: () => Object.keys(savedCopy).length,
-    markSaved() { savedCopy = { ...map }; },
+    markSaved() { savedCopy = { ...map }; persistSaved({ ...savedCopy }); },
+    /** Drop everything (forget my data). */
+    reset() { for (const k of Object.keys(map)) delete map[k]; savedCopy = {}; },
     toJSON: () => JSON.stringify(map, Object.keys(map).sort(), 2) + '\n',
   };
   return api;

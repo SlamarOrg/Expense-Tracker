@@ -206,3 +206,29 @@ select.sel { border: 1px solid var(--border-strong); border-radius: 8px; padding
 .empty-state .actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
 body[data-empty="1"] .empty-state { display: block; }
 body[data-empty="1"] .filters, body[data-empty="1"] .grid, body[data-empty="1"] footer { display: none; }
+
+/* header actions */
+.top-actions { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.btn.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.btn.primary:hover { background: var(--ink-2); }
+.btn.danger { color: var(--bad); border-color: var(--bad); }
+.btn:disabled { opacity: .5; cursor: default; }
+
+/* notices (storage fallback, demo banner) */
+.notice { border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--ink); border-radius: 10px; padding: 8px 12px; margin-bottom: 12px; font-size: 13px; }
+.notice.warn { border-color: var(--bad); }
+
+/* import results */
+.import-panel { margin-bottom: 16px; }
+.import-panel .files { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; margin-top: 10px; }
+.import-panel .file { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; background: var(--surface-2); font-size: 13px; min-width: 0; }
+.import-panel .file.error { border-color: var(--bad); }
+.import-panel .file .name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.import-panel .file .meta { color: var(--ink-2); margin-top: 2px; }
+.import-panel .file ul { margin: 6px 0 0; padding-left: 16px; color: var(--muted); font-size: 12px; }
+.import-panel .warnings { color: var(--bad); font-size: 12.5px; margin-top: 8px; }
+
+/* drag and drop */
+.drop-overlay { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.35); display: flex; align-items: center; justify-content: center; }
+.drop-overlay[hidden] { display: none; }
+.drop-overlay div { background: var(--surface); color: var(--ink); border: 2px dashed var(--accent); border-radius: 16px; padding: 40px 56px; font-size: 18px; font-weight: 600; }

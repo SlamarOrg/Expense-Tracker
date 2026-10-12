@@ -57,3 +57,15 @@ test('applyOverrides recomputes c from c0 for expense rows only', () => {
   applyOverrides(rows, o);
   assert.deepEqual(rows.map((r) => r.c), ['Gifts & donations', 'Gifts & donations', 'Investments', 'Groceries']);
 });
+
+test('markSaved hands the new baseline to persistSaved, reset empties everything', () => {
+  let baseline = null;
+  const o = createOverrides({ saved: {}, pending: { A: 'Travel' }, persistSaved: (b) => { baseline = b; } });
+  assert.equal(o.unsavedCount(), 1);
+  o.markSaved();
+  assert.deepEqual(baseline, { A: 'Travel' });
+  assert.equal(o.unsavedCount(), 0);
+  o.reset();
+  assert.deepEqual(o.all(), {});
+  assert.equal(o.savedCount(), 0);
+});
