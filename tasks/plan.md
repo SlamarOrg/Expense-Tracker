@@ -100,13 +100,13 @@ T21 ── T22 bundler ── T23 CI + Pages + CONTRIBUTING ── T24 README �
 - [x] T16 Store adapter: memory and IndexedDB
 - [x] T17 Import UI: drop zone, file cards, problems, total check
 - [x] T18 Settings panel and re-classification
-- [ ] T19 Sample loader, privacy statement, forget-my-data
+- [x] T19 Sample loader, privacy statement, forget-my-data
 
 ### Checkpoint D: Import flow complete
-- [ ] Importing the three samples in any order yields the same store; re-import adds zero rows
-- [ ] Changing own accounts or rules re-categorizes without re-import
-- [ ] Reload keeps the data; forget-my-data empties it
-- [ ] Review with Martin
+- [x] Importing the three samples in any order yields the same store; re-import adds zero rows (import-flow and browser tests)
+- [x] Changing own accounts or rules re-categorizes without re-import (settings browser test)
+- [x] Reload keeps the data; forget-my-data empties it (browser tests over the DevTools Protocol, real IndexedDB)
+- [ ] Review with Martin (folded into the final report, autonomous run)
 
 ### Phase 5: Languages
 - [ ] T20 i18n core and dashboard strings

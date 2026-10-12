@@ -9,10 +9,11 @@ import sampleSettings from '../samples/sample-settings.json' with { type: 'json'
 import { mountDashboard } from './ui/dashboard.js';
 import { setupImport, readFiles, renderImportResults, setNotice } from './ui/import.js';
 import { setupSettings } from './ui/settings.js';
+import { setupTheme, setTheme } from './ui/theme.js';
 import { Rules } from './classifier/rules.js';
 import { createOverrides } from './store/overrides.js';
 import { openStore } from './store/db.js';
-import { importFiles, loadTransactions, sourcesFromImports } from './import-flow.js';
+import { importFiles, loadTransactions, sourcesFromImports, forgetAll } from './import-flow.js';
 import { mergeAccounts } from './settings-model.js';
 import { getSampleFiles } from './samples-source.js';
 import { loadPdfjs } from './pdfjs-loader.js';
@@ -26,7 +27,7 @@ const app = { store: null, rulesJson: null, rules: null, overrides: null, dashbo
 
 function applyUrlParams() {
   const theme = params.get('theme');
-  if (theme && ['auto', 'light', 'dark'].includes(theme)) { try { localStorage.setItem('spend-theme', theme); } catch { /* ignore */ } }
+  if (theme) setTheme(theme);
 }
 
 /** Re-classify every stored row with the current rules and remount the dashboard. */
@@ -75,6 +76,7 @@ async function loadSamples() {
 
 async function main() {
   applyUrlParams();
+  setupTheme(() => { if (app.dashboard) app.dashboard.renderAll(); });
   app.store = await openStore({ backend: DEMO ? 'memory' : 'indexeddb' });
   if (DEMO) setNotice('Demo with fake sample data. Nothing you import here is saved. Download the dashboard to use it with your own statements.');
   else if (app.store.fallbackReason) setNotice(app.store.fallbackReason, { warn: true });
@@ -92,6 +94,13 @@ async function main() {
     onSave: async (rulesJson) => {
       app.rulesJson = rulesJson;
       await app.store.setSetting('rules', rulesJson);
+      await refresh();
+    },
+    onForget: async () => {
+      await forgetAll(app.store);
+      app.rulesJson = clone(defaultRules);
+      app.overrides.reset();
+      document.getElementById('importPanel').hidden = true;
       await refresh();
     },
   });

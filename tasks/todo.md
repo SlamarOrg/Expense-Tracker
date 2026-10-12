@@ -364,12 +364,12 @@ embedded copy when bundled; a privacy statement near the drop zone; "Forget my d
 that clears the store and reloads to the empty state.
 
 **Acceptance criteria:**
-- [ ] Sample loader works over the dev server; the bundled path is stubbed for T22
-- [ ] Forget-my-data removes rows, imports, overrides and settings, leaving theme and language
+- [x] Sample loader works over the dev server; the bundled path is stubbed for T22
+- [x] Forget-my-data removes rows, imports, overrides and settings, leaving theme and language
 
 **Verification:**
-- [ ] `node --test tests/forget.test.mjs`
-- [ ] Manual: reload after forget shows the empty state
+- [x] `node --test tests/forget.test.mjs`
+- [x] Manual: reload after forget shows the empty state
 
 **Dependencies:** T18
 **Files:** `src/ui/import.js`, `src/app.js`, `tests/forget.test.mjs`

@@ -98,3 +98,31 @@ test('saving own accounts in settings re-classifies stored rows and persists acr
     server.close();
   }
 });
+
+test('forget my data empties the store, survives a reload, and keeps the theme', { skip }, async () => {
+  const server = await serve(ROOT, 0);
+  const base = `http://127.0.0.1:${server.address().port}/`;
+  const b = await launch({ browser });
+  try {
+    const page = await b.newPage();
+    await page.goto(base + '?theme=dark');
+    await checkPage(page);
+    await page.eval('document.querySelector("#emptyActions .btn:not(.primary)").click()'); // "Try with sample data"
+    await page.waitFor('/47 new transactions/.test(document.getElementById("importPanel").textContent)');
+    assert.equal(await page.eval('document.body.dataset.empty || ""'), '');
+
+    await page.eval('window.confirm = () => true; document.getElementById("settingsBtn").click()');
+    await page.waitFor('document.getElementById("forgetBtn")');
+    await page.eval('document.getElementById("forgetBtn").click()');
+    await page.waitFor('document.body.dataset.empty === "1" && !document.getElementById("settings").open');
+
+    await page.goto(base);
+    const after = await checkPage(page);
+    assert.equal(after.empty, true, 'nothing comes back after a reload');
+    assert.equal(await page.eval('document.documentElement.getAttribute("data-theme")'), 'dark', 'theme preference kept');
+    assert.deepEqual(page.exceptions, []);
+  } finally {
+    await b.close();
+    server.close();
+  }
+});

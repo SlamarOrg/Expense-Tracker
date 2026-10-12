@@ -80,10 +80,8 @@ export function mountDashboard(DATA) {
   const state = {
     from: addMonths(MAX_DATE.slice(0, 8) + '01', -11), to: MAX_DATE, preset: '12m',
     banks: new Set(BANKS), invest: false, cat: null, search: '', sortKey: 'd', sortDir: -1, shown: 150,
-    trendCat: 'All spending', monthlyTable: false, theme: 'auto', oneoff: false, oneoffCap: 50000
+    trendCat: 'All spending', monthlyTable: false, oneoff: false, oneoffCap: 50000
   };
-  try { const t = localStorage.getItem('spend-theme'); if (t) state.theme = t; } catch (e) { /* storage unavailable */ }
-  applyTheme();
 
   const PRESETS = [
     { id: '30d', label: '30 days', from: () => addDays(MAX_DATE, -29) },
@@ -552,12 +550,6 @@ export function mountDashboard(DATA) {
     charts[key] = new Chart(canvas.getContext('2d'), cfg);
   }
 
-  // ---------------------------------------------------------------- theme
-  function applyTheme() {
-    const root = document.documentElement;
-    if (state.theme === 'auto') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', state.theme);
-    document.querySelectorAll('[data-theme-btn]').forEach(b => b.setAttribute('aria-pressed', String(b.getAttribute('data-theme-btn') === state.theme)));
-  }
 
   // ---------------------------------------------------------------- orchestration
   function renderAll() {
@@ -588,8 +580,6 @@ export function mountDashboard(DATA) {
   on(document.getElementById('monthlyTableBtn'), 'click', () => { state.monthlyTable = !state.monthlyTable; renderMonthly(selected()); });
   on(document.getElementById('trendCat'), 'change', (e) => { state.trendCat = e.target.value; renderTrend(TX.filter(t => baseFilter(t) && inRange(t, state.from, state.to))); });
   let searchTimer; on(document.getElementById('search'), 'input', (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => { state.search = e.target.value; state.shown = 150; renderTransactions(selected()); }, 120); });
-  document.querySelectorAll('[data-theme-btn]').forEach(b => on(b, 'click', () => { state.theme = b.getAttribute('data-theme-btn'); try { localStorage.setItem('spend-theme', state.theme); } catch (e) { /* ignore */ } applyTheme(); renderAll(); }));
-  on(window.matchMedia('(prefers-color-scheme: dark)'), 'change', () => { if (state.theme === 'auto') renderAll(); });
   on(document.getElementById('exportBtn'), 'click', () => {
     const list = renderTransactions.current || [];
     const esc = (s) => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"';
