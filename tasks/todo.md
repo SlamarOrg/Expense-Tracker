@@ -186,12 +186,12 @@ block parser ported from `parse_airbank`, and a per-file summary with the printe
 totals and problem blocks.
 
 **Acceptance criteria:**
-- [ ] Sample parses with zero problems; `summary.debits === summary.parsedDebits`
-- [ ] Old-layout and modern blocks both yield the right counterparty, merchant and note
-- [ ] Card refund, reward, fee netting and Revolut-as-transfer hints set on `RawRow`
+- [x] Sample parses with zero problems; `summary.debits === summary.parsedDebits`
+- [x] Old-layout and modern blocks both yield the right counterparty, merchant and note
+- [x] Card refund, reward, fee netting and Revolut-as-transfer hints set on `RawRow`
 
 **Verification:**
-- [ ] `node --test tests/airbank.test.mjs`: snapshot, branch coverage, total check, a deliberately corrupted block lands in `problems`
+- [x] `node --test tests/airbank.test.mjs`: snapshot, branch coverage, total check, a deliberately corrupted block lands in `problems`
 
 **Dependencies:** T4, T9
 **Files:** `src/parsers/airbank.js`, `tests/airbank.test.mjs`, `tests/snapshots/airbank.json`
