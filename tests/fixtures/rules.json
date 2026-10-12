@@ -1,0 +1,28 @@
+{
+  "_help": "Test ruleset. Accounts are fake; see samples/README.md for the reserved fake range.",
+  "fx_rates_to_czk": { "CZK": 1, "EUR": 25.0, "USD": 23.0 },
+  "own_accounts": {
+    "_comment": "transfers to or from these are not spending",
+    "fio_main": "2900000001",
+    "fio_savings": "2900000002/2010",
+    "airbank": "1000000001/3030"
+  },
+  "transfer_keywords": ["prevod na sporici", "revolut topup"],
+  "investment_accounts": {
+    "broker": "3000000001/2010"
+  },
+  "investment_keywords": ["portu", "degiro", "etf nakup"],
+  "categories": {
+    "Subscriptions": ["spotify", "netflix"],
+    "Groceries": ["billa", "albert", "rohlik", "lidl"],
+    "Transport": ["mol ", "shell", "stk "],
+    "Restaurants & cafés": ["kavarna", "restaurace", "pizza"],
+    "Housing & utilities": ["najem", "cez prodej"]
+  },
+  "folded_in_charts": { "categories": ["Subscriptions"] },
+  "category_accounts": {
+    "_comment": "counterparty account -> category, wins over keywords",
+    "Housing & utilities": ["4000000001/0100", "000004000000002/0800"],
+    "Insurance": ["4000000003/0300"]
+  }
+}

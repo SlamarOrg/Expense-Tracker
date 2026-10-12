@@ -78,13 +78,13 @@ that produces `Tx` (the Python `tx()` logic). Rules JSON schema is identical to 
 `categories.json`.
 
 **Acceptance criteria:**
-- [ ] `Rules.from(json)` ignores `_` keys, normalizes keywords, builds account rules with leading zeros stripped and bank code dropped
-- [ ] `classifyFlow()` order is transfer, income, investment, expense, exactly as Python
-- [ ] `classify(raw, rules)` honours raw hints (`forceKind`, `refund`, `isCard`, `fee`) and returns a `Tx` with `c0` set and `c` equal to `c0`
-- [ ] JSDoc typedefs for `RawRow` and `Tx` in `src/classifier/types.js`
+- [x] `Rules.from(json)` ignores `_` keys, normalizes keywords, builds account rules with leading zeros stripped and bank code dropped
+- [x] `classifyFlow()` order is transfer, income, investment, expense, exactly as Python
+- [x] `classify(raw, rules)` honours raw hints (`forceKind`, `refund`, `isCard`, `fee`) and returns a `Tx` with `c0` set and `c` equal to `c0`
+- [x] JSDoc typedefs for `RawRow` and `Tx` in `src/classifier/types.js`
 
 **Verification:**
-- [ ] `node --test tests/classify.test.mjs`: table-driven, at least 30 cases, including own-account transfer, investment account, `stk `/`částka ` regression, EUR conversion, unknown currency warning path, category-by-account beating keywords
+- [x] `node --test tests/classify.test.mjs`: table-driven, at least 30 cases, including own-account transfer, investment account, `stk `/`částka ` regression, EUR conversion, unknown currency warning path, category-by-account beating keywords
 
 **Dependencies:** T3
 **Files:** `src/classifier/rules.js`, `src/classifier/classify.js`, `src/classifier/types.js`, `tests/classify.test.mjs`
