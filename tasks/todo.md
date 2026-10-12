@@ -204,11 +204,11 @@ content sniffing, `parseFile(file, rules)` returning `{ rows, summary }`, and `d
 across files.
 
 **Acceptance criteria:**
-- [ ] All three samples detected by name; renamed copies detected by content; an unknown file yields a clear error, not a throw
-- [ ] Parsing the same file twice yields zero new rows after dedupe; overlapping Air Bank statements dedupe on transaction code
+- [x] All three samples detected by name; renamed copies detected by content; an unknown file yields a clear error, not a throw
+- [x] Parsing the same file twice yields zero new rows after dedupe; overlapping Air Bank statements dedupe on transaction code
 
 **Verification:**
-- [ ] `node --test tests/parsers-index.test.mjs`
+- [x] `node --test tests/parsers-index.test.mjs`
 
 **Dependencies:** T7, T8, T10
 **Files:** `src/parsers/index.js`, `tests/parsers-index.test.mjs`

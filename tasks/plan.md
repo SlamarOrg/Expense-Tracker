@@ -78,7 +78,7 @@ T21 ── T22 bundler ── T23 CI + Pages + CONTRIBUTING ── T24 README �
 - [x] T8 Revolut: sample, parser, snapshot
 - [x] T9 PDF writer and Air Bank sample
 - [x] T10 Air Bank parser with total check
-- [ ] T11 Format detection, parseFile, dedup
+- [x] T11 Format detection, parseFile, dedup
 - [ ] T12 parse-cli and private comparison with Python
 
 ### Checkpoint B: Parsers match Python
