@@ -60,7 +60,7 @@ T21 ── T22 bundler ── T23 CI + Pages + CONTRIBUTING ── T24 README �
 
 ### Phase 0: Scaffold and spike
 - [x] T1 Repo scaffold, guards, dev server
-- [ ] T2 Air Bank pdf.js spike
+- [x] T2 Air Bank pdf.js spike
 
 ### Checkpoint A: Spike decided
 - [ ] pdf.js extracts the spike PDF in content-stream order with diacritics, in Node and in Chrome and Firefox from `file://`

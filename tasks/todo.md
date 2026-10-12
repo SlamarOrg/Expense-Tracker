@@ -36,14 +36,14 @@ PDF in a scratch page from `file://` in Chrome and Firefox with the fake-worker 
 strategies.
 
 **Acceptance criteria:**
-- [ ] `vendor/pdf.mjs` and `vendor/pdf.worker.mjs` vendored with the exact version in `vendor/VERSIONS.md`
-- [ ] A Node script prints the spike PDF's lines in the order the block parser expects, diacritics intact
-- [ ] The same extraction works in Chrome and Firefox from `file://` with at least one worker strategy
-- [ ] Result and chosen strategy recorded in SPEC.md open question 2; spike page deleted or moved under `scripts/spike/` and excluded from the bundle
+- [x] `vendor/pdf.mjs` and `vendor/pdf.worker.mjs` vendored with the exact version in `vendor/VERSIONS.md`
+- [x] A Node script prints the spike PDF's lines in the order the block parser expects, diacritics intact
+- [x] The same extraction works in Chrome and Firefox from `file://` with at least one worker strategy
+- [x] Result and chosen strategy recorded in SPEC.md open question 2; spike page deleted or moved under `scripts/spike/` and excluded from the bundle
 
 **Verification:**
-- [ ] Manual: console output of the Node script reviewed against the expected line list
-- [ ] Manual: both browsers show the extracted lines with no console errors
+- [x] Manual: console output of the Node script reviewed against the expected line list
+- [x] Manual: both browsers show the extracted lines with no console errors
 
 **Dependencies:** T1
 **Files:** `vendor/pdf.mjs`, `vendor/pdf.worker.mjs`, `vendor/VERSIONS.md`, `scripts/spike/*`
