@@ -6,9 +6,28 @@
 import { norm } from './normalize.js';
 
 // Keywords keep an intentional leading or trailing space ("stk " must not match "částka"),
-// while the inside is normalized like any text. Matching pads the text with spaces so that a
-// trailing-space keyword still matches at the very end of a message.
+// while the inside is normalized like any text. An edge space means "word boundary": the
+// keyword must be followed (or preceded) by a non-alphanumeric character or the end of the text,
+// so "obi " matches "OBI, BRNO" and "obi brno" but not "mobil".
 export const normKeyword = (k) => (/^\s/.test(k) ? ' ' : '') + norm(k) + (/\s$/.test(k) ? ' ' : '');
+
+const WORD = /[a-z0-9]/;
+/** True when normalized `text` contains normalized keyword `kw`, honouring edge-space boundaries. */
+export function keywordMatches(text, kw) {
+  const lead = kw.startsWith(' ');
+  const trail = kw.endsWith(' ');
+  const core = kw.trim();
+  if (!lead && !trail) return text.includes(core);
+  let from = 0;
+  for (;;) {
+    const i = text.indexOf(core, from);
+    if (i < 0) return false;
+    const okLead = !lead || i === 0 || !WORD.test(text[i - 1]);
+    const okTrail = !trail || i + core.length >= text.length || !WORD.test(text[i + core.length]);
+    if (okLead && okTrail) return true;
+    from = i + 1;
+  }
+}
 
 const stripAccount = (acct) => String(acct || '').split('/')[0].trim().replace(/^0+/, '');
 
@@ -81,8 +100,7 @@ export class Rules {
 
   /** First keyword found in already-normalized text, or null. */
   matches(text, keywords) {
-    const padded = ' ' + text + ' ';
-    for (const kw of keywords) if (padded.includes(kw)) return kw;
+    for (const kw of keywords) if (keywordMatches(text, kw)) return kw;
     return null;
   }
 

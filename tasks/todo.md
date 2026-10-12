@@ -221,12 +221,12 @@ per-category totals as JSON, the same numbers the Python `--dry-run` report prin
 on his real statements with his real rules (both outside the repo) and compares.
 
 **Acceptance criteria:**
-- [ ] CLI works on the samples and prints a stable JSON shape
-- [ ] Private: counts and totals equal Python's for all three banks, or every difference is understood and either fixed or recorded in `tasks/plan.md` as accepted
+- [x] CLI works on the samples and prints a stable JSON shape
+- [x] Private: counts and totals equal Python's for all three banks, or every difference is understood and either fixed or recorded in `tasks/plan.md` as accepted
 
 **Verification:**
-- [ ] `node scripts/parse-cli.mjs samples/*` matches the snapshot totals
-- [ ] Manual, private, outside CI: comparison table pasted into the task notes, no real figures committed
+- [x] `node scripts/parse-cli.mjs samples/*` matches the snapshot totals
+- [x] Manual, private, outside CI: comparison table pasted into the task notes, no real figures committed
 
 **Dependencies:** T11
 **Files:** `scripts/parse-cli.mjs`, `tests/parse-cli.test.mjs`

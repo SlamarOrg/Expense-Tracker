@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { Rules, normKeyword } from '../src/classifier/rules.js';
+import { Rules, normKeyword, keywordMatches } from '../src/classifier/rules.js';
 import { classify, classifyFlow, KIND } from '../src/classifier/classify.js';
 
 const rules = Rules.from(JSON.parse(readFileSync(new URL('./fixtures/rules.json', import.meta.url), 'utf8')));
@@ -57,7 +57,20 @@ test('regression: a short keyword must not match inside another word', () => {
   assert.equal(rules.categorize('Prohlidka STK'), 'Transport'); // trailing-space keyword at the end of the text
   assert.equal(rules.categorize('xstk y'), 'Transport'); // only the trailing space is significant, not a leading one
   assert.equal(rules.categorize('mol praha'), 'Transport');
+  assert.equal(rules.categorize('MOL, Praha'), 'Transport'); // punctuation counts as a boundary
   assert.equal(rules.categorize('molekula'), 'Other');
+});
+
+test('keywordMatches treats edge spaces as word boundaries', () => {
+  assert.equal(keywordMatches('obi, brno', 'obi '), true);
+  assert.equal(keywordMatches('obi', 'obi '), true);
+  assert.equal(keywordMatches('mobil', 'obi '), false);
+  assert.equal(keywordMatches('t-mobile', 'obi '), false);
+  assert.equal(keywordMatches('u obi', ' obi'), true);
+  assert.equal(keywordMatches('mobi', ' obi'), false);
+  assert.equal(keywordMatches('xobi x', 'obi'), true);
+  assert.equal(keywordMatches('cez prodej', 'cez '), true);
+  assert.equal(keywordMatches('cezeta', 'cez '), false);
 });
 
 test('normKeyword keeps edge spaces and normalizes the inside', () => {

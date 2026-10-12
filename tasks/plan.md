@@ -79,7 +79,7 @@ T21 ── T22 bundler ── T23 CI + Pages + CONTRIBUTING ── T24 README �
 - [x] T9 PDF writer and Air Bank sample
 - [x] T10 Air Bank parser with total check
 - [x] T11 Format detection, parseFile, dedup
-- [ ] T12 parse-cli and private comparison with Python
+- [x] T12 parse-cli and private comparison with Python
 
 ### Checkpoint B: Parsers match Python
 - [ ] `node --test` green; every sample parses with zero problems
@@ -121,6 +121,17 @@ T21 ── T22 bundler ── T23 CI + Pages + CONTRIBUTING ── T24 README �
 ### Checkpoint E: Success criteria
 - [ ] All seven success criteria in SPEC.md ticked with evidence
 - [ ] Martin creates the GitHub remote and pushes; CI and Pages confirmed green after push
+
+## Checkpoint B evidence (2026-10-12, private comparison)
+
+JS parsers versus `parse_statements.py --dry-run` on Martin's real statements and private rules:
+rows per file, duplicates removed, total rows, rows by kind and both Air Bank total checks
+(including the known credits mismatch on the older PDF) are identical. Category totals differ in
+seven categories, all explained by one cause: the Python `norm()` strips the trailing space from
+keywords such as `obi `, `dar `, `bar `, `vino `, `kolo `, `kemp `, so they matched inside
+other words ("Alza mobil", "darkoviny", "Sokolovska"). The JS classifier treats an edge space as a
+word boundary, which is what those keywords intend. Accepted as a correction, not a regression.
+A note for the private project: its CLAUDE.md gotcha about `stk ` has the same root cause.
 
 ## Risks and mitigations
 
