@@ -6,6 +6,7 @@
 //   node scripts/make-samples.mjs
 
 import { mkdir, writeFile } from 'node:fs/promises';
+import { writePdf } from './pdf-writer.mjs';
 
 const OUT = new URL('../samples/', import.meta.url);
 
@@ -81,9 +82,108 @@ export function revolutSample() {
   return lines.join('\n') + '\n';
 }
 
+// ---------------------------------------------------------------------------------------------
+// Air Bank PDF statement. Geometry copied from a real statement: date column at x=60, type and
+// transaction code at 108, name, account and details at 186, amount at 502, fee at 548, 11.6pt
+// between lines. Cells are written in the same order as the real PDF's content stream.
+// ---------------------------------------------------------------------------------------------
+export const fmtCz = (n) => {
+  const s = Math.abs(n).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return (n < 0 ? '-' : '') + s;
+};
+
+export function airbankSampleRows() {
+  const card = '516844******4400';
+  return [
+    { booked: '02.03.2024', executed: '02.03.2024', type: ['Příchozí úhrada'], code: '1000000101', name: ['ZAMĚSTNAVATEL S.R.O.'], acct: `${ACCT.employer} / 0100`, details: ['Mzda 02/2024'], amount: 45000, fee: 0 },
+    { booked: '05.03.2024', executed: '03.03.2024', type: ['Platba kartou'], code: '1000000102', name: ['Jan Vzorek'], acct: card, details: ['BILLA 456 BRNO, BRNO,', '602 00, CZE'], amount: -512.3, fee: 0 },
+    { booked: '07.03.2024', executed: '05.03.2024', type: ['Platba kartou'], code: '1000000103', name: ['Jan Vzorek'], acct: card, details: ['RYANAIR DUBLIN, DUBLIN,', 'IRL', '40,00 EUR kurz: 25,100 CZK/EUR'], amount: -1004, fee: 0 },
+    { booked: '15.03.2024', executed: '15.03.2024', type: ['Odchozí úhrada'], code: '1000000104', name: ['PRONAJÍMATEL'], acct: `${ACCT.landlord} / 0100`, details: ['Nájem duben'], amount: -12500, fee: 0 },
+    { booked: '16.03.2024', executed: '16.03.2024', type: ['Odchozí úhrada'], code: '1000000105', oldLayout: true, name: ['Vzorek, Jan'], acct: `${ACCT.fioMain} / 2010`, details: [], amount: -5000, fee: 0 },
+    { booked: '20.03.2024', executed: '20.03.2024', type: ['Odměna za platby', 'mobilem'], code: '1000000106', name: ['Air Bank'], acct: null, details: [], amount: 50, fee: 0 },
+    { booked: '22.03.2024', executed: '20.03.2024', type: ['Vrácení peněz'], code: '1000000107', name: ['Jan Vzorek'], acct: card, details: ['ALZA.CZ PRAHA, PRAHA,', '170 00'], amount: 1500, fee: 0 },
+    { booked: '25.03.2024', executed: '25.03.2024', type: ['Odchozí úhrada'], code: '1000000108', name: ['ZONKY INVESTICE'], acct: `${ACCT.broker} / 2010`, details: ['Investice'], amount: -2000, fee: 0, after: ['Úročení 5,5 % p.a.'] },
+    { booked: '27.03.2024', executed: '26.03.2024', type: ['Platba kartou'], code: '1000000109', name: ['Jan Vzorek'], acct: card, details: ['Revolut**1234* DUBLIN,', 'IRL'], amount: -2000, fee: 0 },
+    { booked: '28.03.2024', executed: '27.03.2024', type: ['Výběr z bankomatu'], code: '1000000110', name: ['Jan Vzorek'], acct: card, details: ['ATM AIR BANK BRNO, BRNO,', 'CZE'], amount: -1000, fee: -30 },
+    { booked: '31.03.2024', executed: '31.03.2024', type: ['Úrok z vkladu'], code: '1000000111', name: ['Air Bank'], acct: null, details: [], amount: 12.34, fee: 0 },
+    { booked: '02.04.2024', executed: '01.04.2024', type: ['Platba kartou'], code: '1000000112', name: ['Jan Vzorek'], acct: card, details: ['KAVARNA U KOCKY, BRNO,', 'CZE'], amount: -85, fee: 0 },
+  ];
+}
+
+export function airbankSample() {
+  const rows = airbankSampleRows();
+  const debits = rows.reduce((s, r) => s + (r.amount < 0 ? -r.amount + Math.abs(r.fee) : 0), 0);
+  const credits = rows.reduce((s, r) => s + (r.amount > 0 ? r.amount : 0), 0);
+  const opening = 10000;
+  const LINE = 11.6;
+  const pages = [];
+  let cells = [];
+  let y = 790;
+  const put = (x, text, size = 8) => cells.push({ x, y, text, size });
+  const columnHeader = () => {
+    const top = y;
+    for (const [x, a, b] of [[60, 'Zaúčtování', 'Provedení'], [106, 'Typ', 'Kód transakce'], [184, 'Název', 'Číslo účtu / debetní karty Detaily Částka CZK Poplatky']]) {
+      cells.push({ x, y: top, text: a, size: 7 });
+      cells.push({ x, y: top - 10.2, text: b, size: 7 });
+    }
+    y = top - 26;
+  };
+  const furniture = (pageNo, total, more) => {
+    const items = [];
+    if (more) items.push('Pokračování na straně ' + (pageNo + 1));
+    items.push('1048/25/01', `${pageNo}/${total}`, 'Air Bank a.s. / Evropská 2690/17 / 160 00 Praha 6 / IČO 00000000 / fiktivní výpis', 'Společnost zapsaná u rejstříkového soudu v Praze, spisová značka B 00000.');
+    let fy = 20 + items.length * 9;
+    for (const t of items) { cells.push({ x: 60, y: fy, text: t, size: 6 }); fy -= 9; }
+  };
+
+  // page 1 header (holder block, statement data, totals)
+  for (const t of ['Jan Vzorek', 'Vzorová 1', '602 00 Brno', 'Česká republika']) { put(60, t, 9); y -= 12; }
+  y -= 8;
+  put(60, 'Výpis z běžného účtu', 11); y -= 16;
+  for (const t of [
+    `Číslo účtu: ${ACCT.airbank} / 3030`, 'Období výpisu: 1. 3. 2024 - 5. 4. 2024', 'Frekvence výpisu: Mimořádný výpis',
+    'IBAN: CZ00 3030 0000 0010 0000 0001', 'Název účtu: Běžný účet', 'Datum výpisu: 5. 4. 2024', 'Měna: CZK', 'Číslo výpisu: 1',
+    `Počáteční zůstatek: ${fmtCz(opening)} Připsáno na účet: ${fmtCz(credits)}`,
+    `Konečný zůstatek: ${fmtCz(opening + credits - debits)} Odepsáno z účtu: ${fmtCz(debits)}`,
+  ]) { put(60, t); y -= 12; }
+  y -= 6;
+  columnHeader();
+
+  const blockHeight = (r) => Math.max(2, r.type.length + 1, r.name.length + (r.acct && !r.oldLayout ? 1 : 0) + r.details.length + (r.after || []).length) * LINE + 16;
+  const pageBreakAt = 80;
+  rows.forEach((r, idx) => {
+    if (y - blockHeight(r) < pageBreakAt) {
+      furniture(pages.length + 1, 2, true);
+      pages.push(cells); cells = []; y = 790;
+      columnHeader();
+    }
+    const top = y;
+    cells.push({ x: 60, y: top, text: r.booked });
+    cells.push({ x: 60, y: top - LINE, text: r.executed });
+    r.type.forEach((t, i) => cells.push({ x: 108, y: top - i * LINE, text: t }));
+    cells.push({ x: 108, y: top - r.type.length * LINE, text: r.oldLayout ? `${r.code} ${r.acct}` : r.code });
+    let ly = top;
+    for (const n of r.name) { cells.push({ x: 186, y: ly, text: n }); ly -= LINE; }
+    if (r.acct && !r.oldLayout) { cells.push({ x: 186, y: ly, text: r.acct }); ly -= LINE; }
+    for (const d of r.details) { cells.push({ x: 186, y: ly, text: d }); ly -= LINE; }
+    cells.push({ x: 502, y: top, text: fmtCz(r.amount) });
+    cells.push({ x: 548, y: top, text: fmtCz(r.fee) });
+    for (const a of r.after || []) { cells.push({ x: 186, y: ly, text: a }); ly -= LINE; }
+    y = top - blockHeight(r);
+    if (idx === rows.length - 1) {
+      y -= 10;
+      put(60, 'Vklad na tomto účtu podléhá ochraně, kterou poskytuje systém pojištění pohledávek z vkladů. Podrobnější přehled', 6);
+      furniture(pages.length + 1, 2, false);
+      pages.push(cells);
+    }
+  });
+  return writePdf(pages);
+}
+
 if (process.argv[1] && /make-samples\.mjs$/.test(process.argv[1].replace(/\\/g, '/'))) {
   await mkdir(OUT, { recursive: true });
   await writeFile(new URL('fio-sample.csv', OUT), fioSample(), 'utf8');
   await writeFile(new URL('revolut-sample.csv', OUT), revolutSample(), 'utf8');
-  console.log('wrote samples/fio-sample.csv, samples/revolut-sample.csv');
+  await writeFile(new URL('airbank-sample.pdf', OUT), airbankSample());
+  console.log('wrote samples/fio-sample.csv, samples/revolut-sample.csv, samples/airbank-sample.pdf');
 }

@@ -168,12 +168,12 @@ spike), and the Air Bank part of `make-samples.mjs` producing `samples/airbank-s
 header totals, both block layouts, page furniture, two pages and the footer sentence.
 
 **Acceptance criteria:**
-- [ ] PDF opens in Chrome, Firefox and Edge and looks like a statement table
-- [ ] Header `Odepsáno z účtu` equals the sum of the generated debit rows to the cent; `Připsáno na účet` likewise for credits
-- [ ] Contains: modern block, old-layout block (account on code line), two-line type, text after amount line, `Vrácení`, `Odměna`, card row, account row, page break with `Pokračování na straně 2`
+- [x] PDF opens in Chrome, Firefox and Edge and looks like a statement table
+- [x] Header `Odepsáno z účtu` equals the sum of the generated debit rows to the cent; `Připsáno na účet` likewise for credits
+- [x] Contains: modern block, old-layout block (account on code line), two-line type, text after amount line, `Vrácení`, `Odměna`, card row, account row, page break with `Pokračování na straně 2`
 
 **Verification:**
-- [ ] `node --test tests/pdf-writer.test.mjs`: output starts with `%PDF-`, deterministic bytes, pdf.js extracts the expected line list
+- [x] `node --test tests/pdf-writer.test.mjs`: output starts with `%PDF-`, deterministic bytes, pdf.js extracts the expected line list
 
 **Dependencies:** T2
 **Files:** `scripts/pdf-writer.mjs`, `scripts/make-samples.mjs`, `samples/airbank-sample.pdf`, `tests/pdf-writer.test.mjs`

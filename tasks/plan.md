@@ -76,7 +76,7 @@ T21 ── T22 bundler ── T23 CI + Pages + CONTRIBUTING ── T24 README �
 ### Phase 2: Parsers, one bank per slice
 - [x] T7 FIO: sample, parser, snapshot
 - [x] T8 Revolut: sample, parser, snapshot
-- [ ] T9 PDF writer and Air Bank sample
+- [x] T9 PDF writer and Air Bank sample
 - [ ] T10 Air Bank parser with total check
 - [ ] T11 Format detection, parseFile, dedup
 - [ ] T12 parse-cli and private comparison with Python
