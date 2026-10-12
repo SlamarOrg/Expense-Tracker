@@ -51,7 +51,8 @@ export class Rules {
     if (!json || typeof json !== 'object') throw new Error('rules must be an object');
     if (!json.categories || typeof json.categories !== 'object') throw new Error('rules.categories is missing');
     this.source = json;
-    this.fx = { CZK: 1, ...(json.fx_rates_to_czk || {}) };
+    this.fx = { CZK: 1 };
+    for (const [k, v] of Object.entries(json.fx_rates_to_czk || {})) if (!k.startsWith('_')) this.fx[k] = v;
     this.ownAccounts = accountSet(json.own_accounts);
     this.investAccounts = accountSet(json.investment_accounts);
     this.transferKw = (json.transfer_keywords || []).map(normKeyword).filter((k) => k.trim());

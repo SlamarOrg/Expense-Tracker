@@ -246,13 +246,13 @@ Chart.js goes to `vendor/chart.umd.js`. `src/app.js` feeds it by parsing the thr
 the dev server. No feature changes, English literals kept.
 
 **Acceptance criteria:**
-- [ ] No embedded data block; the dashboard renders from parsed samples
-- [ ] Theme, presets, bank toggles, investments switch, one-off cap, category focus, tables, CSV export and tooltips behave as in the private version
-- [ ] `window.EXPENSE_DATA` and `DATA.*` references gone
+- [x] No embedded data block; the dashboard renders from parsed samples
+- [x] Theme, presets, bank toggles, investments switch, one-off cap, category focus, tables, CSV export and tooltips behave as in the private version
+- [x] `window.EXPENSE_DATA` and `DATA.*` references gone
 
 **Verification:**
-- [ ] Manual feature walk over the dev server against the private README's feature list
-- [ ] Headless dump of `http://localhost:8080/` shows `data-ready="1"` and empty `#errlog`
+- [x] Manual feature walk over the dev server against the private README's feature list
+- [x] Headless dump of `http://localhost:8080/` shows `data-ready="1"` and empty `#errlog`
 
 **Dependencies:** T11
 **Files:** `index.html`, `src/styles.css`, `src/ui/dashboard.js`, `src/ui/tooltip.js`, `src/app.js`, `vendor/chart.umd.js`

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bank Statement Dashboard</title>
+<meta name="description" content="Offline spending dashboard from bank statement exports. Everything runs in your browser.">
+<link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Spending</h1>
+      <p class="sub" id="subtitle">Loading…</p>
+    </div>
+    <div class="seg" role="group" aria-label="Theme">
+      <button data-theme-btn="auto" aria-pressed="true">Auto</button>
+      <button data-theme-btn="light" aria-pressed="false">Light</button>
+      <button data-theme-btn="dark" aria-pressed="false">Dark</button>
+    </div>
+  </header>
+
+  <section class="filters" aria-label="Filters">
+    <div class="chips" id="presets"></div>
+    <span class="sep"></span>
+    <div class="dates">
+      <input type="date" id="from" aria-label="From date">
+      <span>to</span>
+      <input type="date" id="to" aria-label="To date">
+    </div>
+    <span class="sep"></span>
+    <div class="chips" id="banks"></div>
+    <span class="sep"></span>
+    <label class="switch"><input type="checkbox" id="invest"> Include investments</label>
+    <span class="sep"></span>
+    <label class="switch"><input type="checkbox" id="oneoff"> Hide one-offs over</label>
+    <span class="oneoff"><input type="number" id="oneoffCap" min="1000" step="1000" value="50000" aria-label="One-off threshold in CZK"> Kč</span>
+    <span class="spacer"></span>
+    <div id="catfilter"></div>
+  </section>
+
+  <section class="grid kpis" id="kpis"></section>
+
+  <section class="grid main">
+    <div class="card stretch">
+      <div class="card-head">
+        <div><h2 id="monthlyTitle">Spending per month</h2><p class="hint" id="monthlyHint">Stacked by category. Hover a month for the breakdown, click a legend entry to focus one category.</p></div>
+        <div class="tools"><button class="btn" id="monthlyTableBtn" aria-pressed="false">Table</button></div>
+      </div>
+      <div class="chart" id="monthlyWrap"><canvas id="monthly" role="img" aria-label="Monthly spending stacked by category"></canvas></div>
+      <div class="legend" id="monthlyLegend"></div>
+      <div class="tablewrap compact" id="monthlyTable" hidden></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div><h2>Where it went</h2><p class="hint">Share of spending in the selected range. Click to filter.</p></div></div>
+      <div class="chart short"><canvas id="donut" role="img" aria-label="Share of spending by category"></canvas></div>
+      <ul class="catlist" id="catlist"></ul>
+    </div>
+  </section>
+
+  <section class="grid half">
+    <div class="card">
+      <div class="card-head"><div><h2>Weekly summary</h2><p class="hint" id="weeklyHint"></p></div></div>
+      <div class="chart short"><canvas id="weekly" role="img" aria-label="Spending per week"></canvas></div>
+      <div class="tablewrap compact" style="margin-top:12px"><table id="weeklyTable"></table></div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div><h2>Trend</h2><p class="hint">Monthly total for one category, so slow creep shows up.</p></div>
+        <div class="tools"><select class="btn" id="trendCat" aria-label="Trend category"></select></div>
+      </div>
+      <div class="chart short"><canvas id="trend" role="img" aria-label="Monthly trend for the selected category"></canvas></div>
+      <div class="legend" id="trendLegend"></div>
+    </div>
+  </section>
+
+  <section class="grid main">
+    <div class="card">
+      <div class="card-head">
+        <div><h2>Transactions</h2><p class="hint" id="txHint"></p></div>
+        <div class="tools"><button class="btn" id="exportBtn">Export CSV</button></div>
+      </div>
+      <div class="toolbar"><input type="search" id="search" placeholder="Search merchant, note, category or bank…" aria-label="Search transactions"></div>
+      <div class="tablewrap"><table id="txTable"></table></div>
+      <div class="more" id="moreWrap"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div><h2>Not categorized yet</h2><p class="hint">Biggest “Other” merchants in range. Pick a category to apply it to every transaction with that merchant.</p></div></div>
+      <div class="tablewrap compact"><table id="otherTable"></table></div>
+      <div class="ovr" id="ovr"></div>
+    </div>
+  </section>
+
+  <footer id="footer"></footer>
+</div>
+
+<div class="tip" id="tip" role="tooltip" aria-hidden="true"></div>
+<div id="errlog" aria-hidden="true"></div>
+<script>
+window.addEventListener('error', function (e) {
+  var el = document.getElementById('errlog');
+  if (el) el.appendChild(document.createTextNode('ERROR: ' + (e.message || e) + ' @' + (e.lineno || '') + String.fromCharCode(10)));
+});
+window.addEventListener('unhandledrejection', function (e) {
+  var el = document.getElementById('errlog');
+  if (el) el.appendChild(document.createTextNode('ERROR: ' + (e.reason && e.reason.message || e.reason) + String.fromCharCode(10)));
+});
+</script>
+<script src="vendor/chart.umd.js"></script>
+<script type="module" src="src/app.js"></script>
+</body>
+</html>

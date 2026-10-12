@@ -1,0 +1,15 @@
+{
+  "_help": "Account settings that make the sample statements classify fully. Applied by the sample loader on top of rules/default-cz.json. Fake accounts, see samples/README.md.",
+  "own_accounts": {
+    "FIO main": "2900000001/2010",
+    "FIO savings": "2900000002/2010",
+    "Air Bank": "1000000001/3030"
+  },
+  "investment_accounts": {
+    "Broker": "3000000001/2010"
+  },
+  "category_accounts": {
+    "Housing & utilities": ["4000000001/0100", "4000000002/0800"],
+    "Insurance": ["4000000003/0300"]
+  }
+}

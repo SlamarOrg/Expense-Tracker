@@ -88,7 +88,7 @@ T21 ── T22 bundler ── T23 CI + Pages + CONTRIBUTING ── T24 README �
 - [ ] Review with Martin before touching the dashboard
 
 ### Phase 3: Dashboard
-- [ ] T13 Move dashboard into modules, unchanged behaviour
+- [x] T13 Move dashboard into modules, unchanged behaviour
 - [ ] T14 Store-fed dashboard, overrides import/export, empty state, footer
 - [ ] T15 render-check script
 

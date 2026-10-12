@@ -5,6 +5,17 @@
 // The pdf.js library is passed in: the browser bundle uses the inlined global, Node tests load
 // vendor/pdf.min.mjs. pdf.js detaches the buffer it is given, so a copy is made here.
 
+// pdf.js is forced onto its main-thread "fake worker": a statement is small, the result is needed
+// right away, and a real Worker cannot start from a file:// page in every browser. Hiding the Worker
+// constructor while getDocument() creates its PDFWorker makes pdf.js take that path itself.
+function withoutWebWorker(fn) {
+  const g = globalThis;
+  const hadWorker = Object.prototype.hasOwnProperty.call(g, 'Worker') || 'Worker' in g;
+  const RealWorker = g.Worker;
+  if (hadWorker) { try { g.Worker = undefined; } catch { /* read-only, fall through */ } }
+  try { return fn(); } finally { if (hadWorker) { try { g.Worker = RealWorker; } catch { /* ignore */ } } }
+}
+
 /**
  * @param {Uint8Array|ArrayBuffer} bytes
  * @param {object} pdfjs the pdf.js library namespace (getDocument, GlobalWorkerOptions, ...)
@@ -13,7 +24,7 @@
 export async function pdfToLines(bytes, pdfjs) {
   // a plain Uint8Array copy: pdf.js rejects Node Buffers and detaches whatever it gets
   const data = new Uint8Array(bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes));
-  const doc = await pdfjs.getDocument({ data, useWorkerFetch: false, isEvalSupported: false, disableFontFace: true, verbosity: 0 }).promise;
+  const doc = await withoutWebWorker(() => pdfjs.getDocument({ data, useWorkerFetch: false, isEvalSupported: false, disableFontFace: true, verbosity: 0 })).promise;
   const lines = [];
   try {
     for (let p = 1; p <= doc.numPages; p++) {
