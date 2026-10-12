@@ -11,16 +11,20 @@
 <div class="wrap">
   <header class="top">
     <div>
-      <h1>Spending</h1>
-      <p class="sub" id="subtitle">Loading…</p>
+      <h1 data-i18n="page.title">Spending</h1>
+      <p class="sub" id="subtitle" data-i18n="page.loading">Loading…</p>
     </div>
     <div class="top-actions">
-      <button class="btn" id="importBtn" type="button">Import statements</button>
-      <button class="btn" id="settingsBtn" type="button">Settings</button>
-      <div class="seg" role="group" aria-label="Theme">
-        <button data-theme-btn="auto" aria-pressed="true">Auto</button>
-        <button data-theme-btn="light" aria-pressed="false">Light</button>
-        <button data-theme-btn="dark" aria-pressed="false">Dark</button>
+      <button class="btn" id="importBtn" type="button" data-i18n="top.import">Import statements</button>
+      <button class="btn" id="settingsBtn" type="button" data-i18n="top.settings">Settings</button>
+      <div class="seg" role="group" aria-label="Language" data-i18n-attr="aria-label:top.langGroup">
+        <button data-lang-btn="en" aria-pressed="true" lang="en" title="English">EN</button>
+        <button data-lang-btn="cs" aria-pressed="false" lang="cs" title="Čeština">CS</button>
+      </div>
+      <div class="seg" role="group" aria-label="Theme" data-i18n-attr="aria-label:top.themeGroup">
+        <button data-theme-btn="auto" aria-pressed="true" data-i18n="top.themeAuto">Auto</button>
+        <button data-theme-btn="light" aria-pressed="false" data-i18n="top.themeLight">Light</button>
+        <button data-theme-btn="dark" aria-pressed="false" data-i18n="top.themeDark">Dark</button>
       </div>
     </div>
   </header>
@@ -28,28 +32,28 @@
   <div class="notice" id="notice" role="status" hidden></div>
   <section class="card import-panel" id="importPanel" aria-live="polite" hidden></section>
 
-  <section class="filters" aria-label="Filters">
+  <section class="filters" aria-label="Filters" data-i18n-attr="aria-label:filters.label">
     <div class="chips" id="presets"></div>
     <span class="sep"></span>
     <div class="dates">
-      <input type="date" id="from" aria-label="From date">
-      <span>to</span>
-      <input type="date" id="to" aria-label="To date">
+      <input type="date" id="from" aria-label="From date" data-i18n-attr="aria-label:filters.from">
+      <span data-i18n="filters.to">to</span>
+      <input type="date" id="to" aria-label="To date" data-i18n-attr="aria-label:filters.toLabel">
     </div>
     <span class="sep"></span>
     <div class="chips" id="banks"></div>
     <span class="sep"></span>
-    <label class="switch"><input type="checkbox" id="invest"> Include investments</label>
+    <label class="switch"><input type="checkbox" id="invest"> <span data-i18n="filters.invest">Include investments</span></label>
     <span class="sep"></span>
-    <label class="switch"><input type="checkbox" id="oneoff"> Hide one-offs over</label>
-    <span class="oneoff"><input type="number" id="oneoffCap" min="1000" step="1000" value="50000" aria-label="One-off threshold in CZK"> Kč</span>
+    <label class="switch"><input type="checkbox" id="oneoff"> <span data-i18n="filters.oneoff">Hide one-offs over</span></label>
+    <span class="oneoff"><input type="number" id="oneoffCap" min="1000" step="1000" value="50000" aria-label="One-off threshold in CZK" data-i18n-attr="aria-label:filters.oneoffLabel"> Kč</span>
     <span class="spacer"></span>
     <div id="catfilter"></div>
   </section>
 
   <section class="card empty-state" id="empty" aria-live="polite">
-    <h2>No statements loaded yet</h2>
-    <p class="hint">Drop your bank statement exports here: FIO CSV, Air Bank PDF or Revolut CSV. Files are read in this browser and never uploaded anywhere.</p>
+    <h2 data-i18n="empty.title">No statements loaded yet</h2>
+    <p class="hint" data-i18n="empty.hint">Drop your bank statement exports here: FIO CSV, Air Bank PDF or Revolut CSV. Files are read in this browser and never uploaded anywhere.</p>
     <div class="actions" id="emptyActions"></div>
   </section>
 
@@ -58,32 +62,32 @@
   <section class="grid main">
     <div class="card stretch">
       <div class="card-head">
-        <div><h2 id="monthlyTitle">Spending per month</h2><p class="hint" id="monthlyHint">Stacked by category. Hover a month for the breakdown, click a legend entry to focus one category.</p></div>
-        <div class="tools"><button class="btn" id="monthlyTableBtn" aria-pressed="false">Table</button></div>
+        <div><h2 id="monthlyTitle" data-i18n="monthly.title">Spending per month</h2><p class="hint" id="monthlyHint" data-i18n="monthly.hint">Stacked by category. Hover a month for the breakdown, click a legend entry to focus one category.</p></div>
+        <div class="tools"><button class="btn" id="monthlyTableBtn" aria-pressed="false" data-i18n="card.monthlyTable">Table</button></div>
       </div>
-      <div class="chart" id="monthlyWrap"><canvas id="monthly" role="img" aria-label="Monthly spending stacked by category"></canvas></div>
+      <div class="chart" id="monthlyWrap"><canvas id="monthly" role="img" aria-label="Monthly spending stacked by category" data-i18n-attr="aria-label:card.monthlyAria"></canvas></div>
       <div class="legend" id="monthlyLegend"></div>
       <div class="tablewrap compact" id="monthlyTable" hidden></div>
     </div>
     <div class="card">
-      <div class="card-head"><div><h2>Where it went</h2><p class="hint">Share of spending in the selected range. Click to filter.</p></div></div>
-      <div class="chart short"><canvas id="donut" role="img" aria-label="Share of spending by category"></canvas></div>
+      <div class="card-head"><div><h2 data-i18n="card.whereTitle">Where it went</h2><p class="hint" data-i18n="card.whereHint">Share of spending in the selected range. Click to filter.</p></div></div>
+      <div class="chart short"><canvas id="donut" role="img" aria-label="Share of spending by category" data-i18n-attr="aria-label:card.whereAria"></canvas></div>
       <ul class="catlist" id="catlist"></ul>
     </div>
   </section>
 
   <section class="grid half">
     <div class="card">
-      <div class="card-head"><div><h2>Weekly summary</h2><p class="hint" id="weeklyHint"></p></div></div>
-      <div class="chart short"><canvas id="weekly" role="img" aria-label="Spending per week"></canvas></div>
+      <div class="card-head"><div><h2 data-i18n="card.weeklyTitle">Weekly summary</h2><p class="hint" id="weeklyHint"></p></div></div>
+      <div class="chart short"><canvas id="weekly" role="img" aria-label="Spending per week" data-i18n-attr="aria-label:card.weeklyAria"></canvas></div>
       <div class="tablewrap compact" style="margin-top:12px"><table id="weeklyTable"></table></div>
     </div>
     <div class="card">
       <div class="card-head">
-        <div><h2>Trend</h2><p class="hint">Monthly total for one category, so slow creep shows up.</p></div>
-        <div class="tools"><select class="btn" id="trendCat" aria-label="Trend category"></select></div>
+        <div><h2 data-i18n="card.trendTitle">Trend</h2><p class="hint" data-i18n="card.trendHint">Monthly total for one category, so slow creep shows up.</p></div>
+        <div class="tools"><select class="btn" id="trendCat" aria-label="Trend category" data-i18n-attr="aria-label:card.trendSelect"></select></div>
       </div>
-      <div class="chart short"><canvas id="trend" role="img" aria-label="Monthly trend for the selected category"></canvas></div>
+      <div class="chart short"><canvas id="trend" role="img" aria-label="Monthly trend for the selected category" data-i18n-attr="aria-label:card.trendAria"></canvas></div>
       <div class="legend" id="trendLegend"></div>
     </div>
   </section>
@@ -91,15 +95,15 @@
   <section class="grid main">
     <div class="card">
       <div class="card-head">
-        <div><h2>Transactions</h2><p class="hint" id="txHint"></p></div>
-        <div class="tools"><button class="btn" id="exportBtn">Export CSV</button></div>
+        <div><h2 data-i18n="card.txTitle">Transactions</h2><p class="hint" id="txHint"></p></div>
+        <div class="tools"><button class="btn" id="exportBtn" data-i18n="card.txExport">Export CSV</button></div>
       </div>
-      <div class="toolbar"><input type="search" id="search" placeholder="Search merchant, note, category or bank…" aria-label="Search transactions"></div>
+      <div class="toolbar"><input type="search" id="search" placeholder="Search merchant, note, category or bank…" aria-label="Search transactions" data-i18n-attr="placeholder:card.txSearch;aria-label:card.txSearchLabel"></div>
       <div class="tablewrap"><table id="txTable"></table></div>
       <div class="more" id="moreWrap"></div>
     </div>
     <div class="card">
-      <div class="card-head"><div><h2>Not categorized yet</h2><p class="hint">Biggest “Other” merchants in range. Pick a category to apply it to every transaction with that merchant.</p></div></div>
+      <div class="card-head"><div><h2 data-i18n="card.otherTitle">Not categorized yet</h2><p class="hint" data-i18n="card.otherHint">Biggest “Other” merchants in range. Pick a category to apply it to every transaction with that merchant.</p></div></div>
       <div class="tablewrap compact"><table id="otherTable"></table></div>
       <div class="ovr" id="ovr"></div>
     </div>
@@ -108,7 +112,7 @@
   <footer id="footer"></footer>
 </div>
 
-<div class="drop-overlay" id="dropOverlay" hidden><div>Drop statements to import</div></div>
+<div class="drop-overlay" id="dropOverlay" hidden><div data-i18n="drop.overlay">Drop statements to import</div></div>
 <dialog class="settings" id="settings" aria-labelledby="settingsTitle"></dialog>
 <div class="tip" id="tip" role="tooltip" aria-hidden="true"></div>
 <div id="errlog" aria-hidden="true"></div>

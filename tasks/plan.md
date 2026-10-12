@@ -110,7 +110,7 @@ T21 ── T22 bundler ── T23 CI + Pages + CONTRIBUTING ── T24 README �
 
 ### Phase 5: Languages
 - [x] T20 i18n core and dashboard strings
-- [ ] T21 Import and settings strings, language switch, parity test
+- [x] T21 Import and settings strings, language switch, parity test
 
 ### Phase 6: Release
 - [ ] T22 Bundler

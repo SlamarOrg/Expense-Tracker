@@ -404,12 +404,12 @@ default; `en.json` and `cs.json`; replace every literal in `dashboard.js` and `t
 switch next to the theme switch; a test greps `src/ui/` for untranslated user-facing literals.
 
 **Acceptance criteria:**
-- [ ] No user-facing literal remains outside the dictionaries (allowlist for data such as bank names)
-- [ ] Render check passes with `--lang cs`
+- [x] No user-facing literal remains outside the dictionaries (allowlist for data such as bank names)
+- [x] Render check passes with `--lang cs`
 
 **Verification:**
-- [ ] `node --test tests/i18n-coverage.test.mjs`
-- [ ] `node scripts/render-check.mjs http://localhost:8080/ --lang cs`
+- [x] `node --test tests/i18n-coverage.test.mjs`
+- [x] `node scripts/render-check.mjs http://localhost:8080/ --lang cs`
 
 **Dependencies:** T20
 **Files:** `src/ui/import.js`, `src/ui/settings.js`, `index.html`, `src/i18n/cs.json`, `tests/i18n-coverage.test.mjs`

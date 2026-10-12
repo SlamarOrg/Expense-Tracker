@@ -126,3 +126,36 @@ test('forget my data empties the store, survives a reload, and keeps the theme',
     server.close();
   }
 });
+
+test('switching the language re-renders static texts, the dashboard and the empty state', { skip }, async () => {
+  const server = await serve(ROOT, 0);
+  const base = `http://127.0.0.1:${server.address().port}/`;
+  const b = await launch({ browser });
+  const text = (p, id) => p.eval(`document.getElementById(${JSON.stringify(id)}).textContent`);
+  try {
+    const page = await b.newPage();
+    await page.goto(base + '?demo=1&lang=en');
+    await checkPage(page);
+    assert.equal(await text(page, 'importBtn'), 'Import statements');
+    assert.match(await text(page, 'kpis'), /Spent in this range/);
+
+    await page.eval('document.querySelector("[data-lang-btn=cs]").click()');
+    await page.waitFor('/Utraceno v tomto období/.test(document.getElementById("kpis").textContent)');
+    assert.equal(await text(page, 'importBtn'), 'Nahrát výpisy');
+    assert.equal(await page.eval('document.documentElement.lang'), 'cs');
+    assert.match(await text(page, 'txHint'), /transakc/);
+    assert.equal(await page.eval('document.querySelector("[data-lang-btn=cs]").getAttribute("aria-pressed")'), 'true');
+    assert.match(await text(page, 'notice'), /Ukázka/);
+
+    const empty = await b.newPage();
+    await empty.goto(base + '?lang=cs');
+    await checkPage(empty);
+    assert.equal(await text(empty, 'samplesBtn'), 'Vyzkoušet na ukázkových datech');
+    await empty.eval('document.querySelector("[data-lang-btn=en]").click()');
+    await empty.waitFor('document.getElementById("samplesBtn").textContent === "Try with sample data"');
+    assert.deepEqual([...page.exceptions, ...empty.exceptions], []);
+  } finally {
+    await b.close();
+    server.close();
+  }
+});

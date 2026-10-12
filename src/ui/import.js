@@ -2,6 +2,7 @@
 // All parsing and storing happens in import-flow.js; this module only reads files and renders.
 
 import { el, clear } from './dom.js';
+import * as i18n from '../i18n/index.js';
 
 /** Read browser File objects into { name, bytes }. */
 export async function readFiles(files) {
@@ -17,7 +18,7 @@ export function setupImport({ onFiles, onSamples }) {
   input.multiple = true;
   input.accept = '.csv,.pdf,text/csv,application/pdf';
   input.className = 'srhide';
-  input.setAttribute('aria-label', 'Choose statement files');
+  input.setAttribute('aria-label', i18n.t('import.inputLabel'));
   document.body.appendChild(input);
   const pick = () => input.click();
   input.addEventListener('change', () => {
@@ -27,15 +28,21 @@ export function setupImport({ onFiles, onSamples }) {
   });
   document.getElementById('importBtn').addEventListener('click', pick);
 
-  const actions = clear(document.getElementById('emptyActions'));
-  const choose = el('button', 'btn primary', 'Choose files');
-  choose.type = 'button';
-  choose.addEventListener('click', pick);
-  actions.appendChild(choose);
-  const samples = el('button', 'btn', 'Try with sample data');
-  samples.type = 'button';
-  samples.addEventListener('click', onSamples);
-  actions.appendChild(samples);
+  // the empty-state buttons; re-rendered when the language changes
+  function relabel() {
+    input.setAttribute('aria-label', i18n.t('import.inputLabel'));
+    const actions = clear(document.getElementById('emptyActions'));
+    const choose = el('button', 'btn primary', i18n.t('empty.choose'));
+    choose.type = 'button';
+    choose.addEventListener('click', pick);
+    actions.appendChild(choose);
+    const samples = el('button', 'btn', i18n.t('empty.samples'));
+    samples.type = 'button';
+    samples.id = 'samplesBtn';
+    samples.addEventListener('click', onSamples);
+    actions.appendChild(samples);
+  }
+  relabel();
 
   // Drag and drop anywhere. dragenter/dragleave fire for every child element, so count depth.
   const overlay = document.getElementById('dropOverlay');
@@ -52,29 +59,29 @@ export function setupImport({ onFiles, onSamples }) {
     const files = [...e.dataTransfer.files];
     if (files.length) onFiles(files);
   });
+  return { relabel };
 }
 
 const fmt = (n) => (n === null || n === undefined ? '?' : Number(n).toLocaleString('cs-CZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
-const KIND_LABEL = { expense: 'spending', investment: 'investments', transfer: 'transfers', income: 'income', skip: 'skipped' };
 
 function fileCard(r) {
   const card = el('div', 'file' + (r.error ? ' error' : ''));
   card.appendChild(el('div', 'name', r.name));
   if (r.error) {
-    card.appendChild(el('div', 'meta warn', r.error));
+    card.appendChild(el('div', 'meta warn', r.code === 'unknown-format' ? i18n.t('import.unknownFile') : r.error));
     return card;
   }
-  card.appendChild(el('div', 'meta', `${r.bank} · ${r.rows} rows · ${r.added} new · ${r.skipped} already imported`));
-  const kinds = Object.entries(r.kinds || {}).filter(([, n]) => n > 0).map(([k, n]) => `${n} ${KIND_LABEL[k] || k}`).join(', ');
+  card.appendChild(el('div', 'meta', i18n.t('import.fileMeta', { bank: r.bank, rows: r.rows, added: r.added, skipped: r.skipped })));
+  const kinds = Object.entries(r.kinds || {}).filter(([, n]) => n > 0).map(([k, n]) => `${n} ${i18n.t('import.kind.' + k)}`).join(', ');
   if (kinds) card.appendChild(el('div', 'meta', kinds));
   if (r.totals) {
     const t = r.totals;
     card.appendChild(el('div', t.ok ? 'meta ok' : 'meta warn', t.ok
-      ? `Debit total matches the statement (${fmt(t.debits)} Kč) ✓`
-      : `Debit total does NOT match the statement: printed ${fmt(t.debits)}, parsed ${fmt(t.parsedDebits)}`));
+      ? i18n.t('import.debitsOk', { amount: fmt(t.debits) })
+      : i18n.t('import.debitsBad', { printed: fmt(t.debits), parsed: fmt(t.parsedDebits) })));
   }
   if (r.problems && r.problems.length) {
-    card.appendChild(el('div', 'meta warn', `${r.problems.length} block${r.problems.length === 1 ? '' : 's'} could not be read:`));
+    card.appendChild(el('div', 'meta warn', i18n.tn('import.problems', r.problems.length)));
     const ul = el('ul');
     for (const p of r.problems.slice(0, 5)) ul.appendChild(el('li', null, p));
     card.appendChild(ul);
@@ -86,7 +93,7 @@ function fileCard(r) {
  * Show the result of an import, or a busy message while files are being read.
  * @param {{results?: object[], busy?: string, warnings?: string[], title?: string}} opts
  */
-export function renderImportResults({ results = [], busy = '', warnings = [], title = 'Import' } = {}) {
+export function renderImportResults({ results = [], busy = '', warnings = [], title = i18n.t('import.title') } = {}) {
   const panel = clear(document.getElementById('importPanel'));
   panel.hidden = false;
   const head = el('div', 'card-head');
@@ -96,13 +103,13 @@ export function renderImportResults({ results = [], busy = '', warnings = [], ti
   else {
     const added = results.reduce((a, r) => a + (r.added || 0), 0);
     const failed = results.filter((r) => r.error).length;
-    left.appendChild(el('p', 'hint', `${results.length} file${results.length === 1 ? '' : 's'} read · ${added} new transactions${failed ? ` · ${failed} not recognized` : ''}`));
+    left.appendChild(el('p', 'hint', i18n.tn('import.summary', results.length, { added }) + (failed ? i18n.t('import.notRecognized', { n: failed }) : '')));
   }
   head.appendChild(left);
   const close = el('button', 'btn', '×');
   close.type = 'button';
-  close.title = 'Close';
-  close.setAttribute('aria-label', 'Close import results');
+  close.title = i18n.t('import.close');
+  close.setAttribute('aria-label', i18n.t('import.close'));
   close.addEventListener('click', () => { panel.hidden = true; });
   head.appendChild(close);
   panel.appendChild(head);

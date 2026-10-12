@@ -26,7 +26,7 @@ export async function importFiles(files, { store, rules, pdfjs }) {
     const res = await parseFile(file, { pdfjs });
     const out = {
       name: file.name, format: res.format, bank: res.format ? FORMATS[res.format].bank : null,
-      rows: res.rows.length, added: 0, skipped: 0, kinds: {}, problems: [], totals: null, error: res.error || null,
+      rows: res.rows.length, added: 0, skipped: 0, kinds: {}, problems: [], totals: null, error: res.error || null, code: res.code || null,
     };
     if (!res.error) {
       out.problems = res.summary.problems || [];

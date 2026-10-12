@@ -41,7 +41,7 @@ export async function parseFile(file, deps = {}) {
   const bytes = file.bytes instanceof Uint8Array ? file.bytes : new Uint8Array(file.bytes);
   const format = detectFormat(file.name, bytes);
   const base = { name: file.name, format, rows: [], summary: { rows: 0, problems: [] } };
-  if (!format) return { ...base, error: `${file.name}: file type not recognized (expected a FIO or Revolut CSV, or an Air Bank PDF)` };
+  if (!format) return { ...base, code: 'unknown-format', error: `${file.name}: file type not recognized (expected a FIO or Revolut CSV, or an Air Bank PDF)` };
   try {
     if (format === 'airbank') {
       if (!deps.pdfjs) return { ...base, error: `${file.name}: pdf.js is not available, cannot read PDF statements` };
