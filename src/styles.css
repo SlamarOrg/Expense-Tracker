@@ -198,3 +198,11 @@ select.sel { border: 1px solid var(--border-strong); border-radius: 8px; padding
 .ovr .status { color: var(--muted); font-size: 12px; }
 #errlog { display: none; }
 .srhide { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* empty state: shown instead of the dashboard until statements are imported */
+.empty-state { display: none; text-align: center; padding: 48px 20px; margin-bottom: 16px; }
+.empty-state h2 { font-size: 20px; margin-bottom: 6px; }
+.empty-state .hint { font-size: 14px; max-width: 560px; margin: 0 auto 16px; }
+.empty-state .actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+body[data-empty="1"] .empty-state { display: block; }
+body[data-empty="1"] .filters, body[data-empty="1"] .grid, body[data-empty="1"] footer { display: none; }

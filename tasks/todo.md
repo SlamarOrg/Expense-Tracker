@@ -265,13 +265,13 @@ overrides" and "Import overrides", render an empty state when there are no rows,
 footer list imported files and dates.
 
 **Acceptance criteria:**
-- [ ] Overrides survive reload; import merges and re-renders; export downloads JSON via `showSaveFilePicker` with blob fallback
-- [ ] Empty store shows an empty state with a placeholder for the drop zone, no empty charts
-- [ ] Footer shows file names, banks, row counts and the Air Bank total check result
+- [x] Overrides survive reload; import merges and re-renders; export downloads JSON via `showSaveFilePicker` with blob fallback
+- [x] Empty store shows an empty state with a placeholder for the drop zone, no empty charts
+- [x] Footer shows file names, banks, row counts and the Air Bank total check result
 
 **Verification:**
-- [ ] `node --test tests/overrides.test.mjs` for merge and unsaved-diff logic
-- [ ] Manual: reload, import and export round trip
+- [x] `node --test tests/overrides.test.mjs` for merge and unsaved-diff logic
+- [x] Manual: reload, import and export round trip
 
 **Dependencies:** T13
 **Files:** `src/store/overrides.js`, `src/ui/dashboard.js`, `src/app.js`, `tests/overrides.test.mjs`

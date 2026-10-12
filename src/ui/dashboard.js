@@ -7,19 +7,24 @@
 
 import { el, clear } from './dom.js';
 import { showTip, tipRow } from './tooltip.js';
+import { applyOverrides } from '../store/overrides.js';
 
 /**
  * @param {{tx: object[], categories: string[], folded?: string[], fx?: object, overrides?: object, meta?: object}} DATA
  * @returns {{renderAll: Function, state: object} | null}
  */
 export function mountDashboard(DATA) {
-  if (!DATA || !DATA.tx || !DATA.tx.length) {
-    document.getElementById('subtitle').textContent = 'No data loaded yet.';
+  const spending = (DATA && DATA.tx ? DATA.tx : []).filter(t => t.k === 'expense' || t.k === 'investment');
+  if (!spending.length) {
+    document.body.setAttribute('data-empty', '1');
+    document.getElementById('subtitle').textContent = 'No statements loaded yet.';
+    document.body.setAttribute('data-ready', '1');
     return null;
   }
+  document.body.removeAttribute('data-empty');
 
   // ---------------------------------------------------------------- constants
-  const TX = DATA.tx.filter(t => t.k === 'expense' || t.k === 'investment');
+  const TX = spending;
   const FOLDED = new Set(DATA.folded || []);
   const SLOT_ORDER = ['Groceries', 'Restaurants & cafés', 'Transport', 'Entertainment', 'Subscriptions', 'Shopping', 'Housing & utilities', 'Travel'];
   const OTHER_LABEL = 'Everything else';
@@ -29,18 +34,12 @@ export function mountDashboard(DATA) {
   const DAY = 86400000;
 
   // ---------------------------------------------------------------- category overrides (merchant -> category)
-  // Saved overrides come embedded from overrides.json (DATA.overrides); pending ones live in localStorage until
-  // "Save overrides.json" writes them next to the dashboard and parse_statements.py bakes them in.
-  const SAVED = Object.assign({}, DATA.overrides || {});
-  const OVR = Object.assign({}, SAVED);
-  try { Object.assign(OVR, JSON.parse(localStorage.getItem('spend-overrides') || '{}')); } catch (e) { /* ignore */ }
-  const keyOf = (t) => t.m || t.t;
-  for (const t of TX) { t.c0 = t.c; }
-  function applyOverrides() { for (const t of TX) { if (t.k === 'expense') t.c = OVR[keyOf(t)] || t.c0; } }
-  function persistOverrides() { try { localStorage.setItem('spend-overrides', JSON.stringify(OVR)); } catch (e) { /* ignore */ } }
-  function setOverride(key, cat) { if (cat && cat !== 'Other') OVR[key] = cat; else delete OVR[key]; persistOverrides(); applyOverrides(); renderAll(); }
-  function unsavedOverrides() { const out = {}; for (const k of Object.keys(OVR)) if (SAVED[k] !== OVR[k]) out[k] = OVR[k]; for (const k of Object.keys(SAVED)) if (!(k in OVR)) out[k] = null; return out; }
-  applyOverrides();
+  // DATA.overridesStore is a store/overrides.js instance; the app persists it and loads it back.
+  const OVR = DATA.overridesStore;
+  for (const t of TX) { if (t.c0 === undefined) t.c0 = t.c; }
+  function applyOverridesNow() { applyOverrides(TX, OVR); }
+  function setOverride(key, cat) { OVR.set(key, cat); applyOverridesNow(); renderAll(); }
+  applyOverridesNow();
 
   const fmtCZK = new Intl.NumberFormat('cs-CZ', { style: 'currency', currency: 'CZK', maximumFractionDigits: 0 });
   const fmtCZK2 = new Intl.NumberFormat('cs-CZ', { style: 'currency', currency: 'CZK', minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -487,32 +486,43 @@ export function mountDashboard(DATA) {
     const total = other.reduce((a, t) => a + t.amt, 0);
     const allTotal = rows.reduce((a, t) => a + t.amt, 0);
     const hint = document.querySelector('#otherTable').closest('.card').querySelector('.hint');
-    hint.textContent = (allTotal ? Math.round(total / allTotal * 100) : 0) + ' % of spending in range is “Other”. Pick a category to apply it to every transaction with that merchant. Your choice beats the keyword rules in categories.json.';
+    hint.textContent = (allTotal ? Math.round(total / allTotal * 100) : 0) + ' % of spending in range is “Other”. Pick a category to apply it to every transaction with that merchant. Your choice beats the keyword rules.';
   }
 
   function renderOverrides() {
     const box = clear(document.getElementById('ovr'));
-    const keys = Object.keys(OVR).sort((a, b) => a.localeCompare(b));
-    const unsaved = unsavedOverrides(); const nUnsaved = Object.keys(unsaved).length;
-    const h = el('h3', null, 'Your assignments'); h.appendChild(el('span', 'badge' + (nUnsaved ? '' : ' ok'), nUnsaved ? nUnsaved + ' unsaved' : 'saved')); box.appendChild(h);
-    if (!keys.length) box.appendChild(el('div', 'status', 'Nothing assigned yet. Choices made above are remembered in this browser; save them to overrides.json to make them permanent.'));
+    const all = OVR.all();
+    const keys = Object.keys(all).sort((a, b) => a.localeCompare(b));
+    const nUnsaved = OVR.unsavedCount();
+    const h = el('h3', null, 'Your assignments'); h.appendChild(el('span', 'badge' + (nUnsaved ? '' : ' ok'), nUnsaved ? nUnsaved + ' not exported' : 'exported')); box.appendChild(h);
+    if (!keys.length) box.appendChild(el('div', 'status', 'Nothing assigned yet. Choices made above are remembered in this browser; export them to keep a copy or to use them elsewhere.'));
     const ul = el('ul');
     for (const k of keys) {
       const li = el('li'); li.appendChild(el('span', 'k', k));
-      const p = el('span', 'pill'); const dot = el('span', 'dot'); dot.style.background = colorOf(OVR[k]); p.appendChild(dot); p.appendChild(document.createTextNode(OVR[k])); li.appendChild(p);
+      const p = el('span', 'pill'); const dot = el('span', 'dot'); dot.style.background = colorOf(all[k]); p.appendChild(dot); p.appendChild(document.createTextNode(all[k])); li.appendChild(p);
       const x = el('button', 'x', '×'); x.title = 'Remove, back to Other'; x.addEventListener('click', () => setOverride(k, null)); li.appendChild(x);
       ul.appendChild(li);
     }
     box.appendChild(ul);
     const act = el('div', 'actions');
-    const save = el('button', 'btn', 'Save overrides.json'); save.disabled = !keys.length && !Object.keys(SAVED).length;
+    const save = el('button', 'btn', 'Export overrides'); save.disabled = !keys.length && !OVR.savedCount();
     save.addEventListener('click', saveOverridesFile); act.appendChild(save);
-    act.appendChild(el('span', 'status', 'Save the file into this folder, then re-run parse_statements.py so the choices are embedded for every browser.'));
+    const imp = el('button', 'btn', 'Import overrides');
+    const file = document.createElement('input'); file.type = 'file'; file.accept = '.json,application/json'; file.className = 'srhide'; file.setAttribute('aria-label', 'Import overrides file');
+    const status = el('span', 'status', 'Exported as overrides.json, a plain merchant-to-category map.');
+    file.addEventListener('change', async () => {
+      const f = file.files && file.files[0]; if (!f) return;
+      try { const r = OVR.merge(JSON.parse(await f.text())); OVR.markSaved(); applyOverridesNow(); renderAll(); status.textContent = 'Imported ' + r.added + ' assignments' + (r.ignored ? ', ' + r.ignored + ' ignored' : '') + '.'; }
+      catch (e) { status.textContent = 'Could not import: ' + (e && e.message ? e.message : e); }
+      file.value = '';
+    });
+    imp.addEventListener('click', () => file.click()); act.appendChild(imp); act.appendChild(file);
+    act.appendChild(status);
     box.appendChild(act);
   }
   async function saveOverridesFile() {
-    const text = JSON.stringify(OVR, Object.keys(OVR).sort(), 2) + '\n';
-    const done = () => { Object.keys(SAVED).forEach(k => delete SAVED[k]); Object.assign(SAVED, OVR); renderOverrides(); };
+    const text = OVR.toJSON();
+    const done = () => { OVR.markSaved(); renderOverrides(); };
     if (window.showSaveFilePicker) {
       try {
         const handle = await window.showSaveFilePicker({ suggestedName: 'overrides.json', types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }] });
@@ -527,7 +537,7 @@ export function mountDashboard(DATA) {
   function renderFooter() {
     const f = clear(document.getElementById('footer'));
     const meta = DATA.meta || {};
-    f.appendChild(el('div', null, 'Data generated ' + (meta.generated || '').replace('T', ' ') + ' from ' + (meta.sources || []).length + ' statement files. Transfers between your own accounts and incoming money are excluded. Refunds are netted against their category. Foreign currency converted at fixed rates: ' + Object.entries(DATA.fx || {}).filter(([k]) => k !== 'CZK').map(([k, v]) => '1 ' + k + ' = ' + v + ' CZK').join(', ') + '.'));
+    f.appendChild(el('div', null, 'Data from ' + (meta.sources || []).length + ' imported statement file' + ((meta.sources || []).length === 1 ? '' : 's') + (meta.generated ? ', last import ' + String(meta.generated).replace('T', ' ').slice(0, 16) : '') + '. Transfers between your own accounts and incoming money are excluded. Refunds are netted against their category. Foreign currency converted at fixed rates: ' + Object.entries(DATA.fx || {}).filter(([k]) => k !== 'CZK').map(([k, v]) => '1 ' + k + ' = ' + v + ' CZK').join(', ') + '.'));
     const ul = el('ul');
     for (const s of meta.sources || []) {
       const li = el('li'); li.appendChild(document.createTextNode(s.bank + ' · ' + s.file + ' · ' + s.rows + ' rows'));
@@ -567,18 +577,20 @@ export function mountDashboard(DATA) {
     sub.textContent = fmtDay(state.from) + ' – ' + fmtDay(state.to) + ' · ' + [...state.banks].join(', ') + (state.invest ? ' · investments included' : '') + (state.oneoff ? ' · one-offs over ' + fmtCZK.format(state.oneoffCap) + ' hidden' : '') + ' · data through ' + fmtDay(MAX_DATE);
   }
 
-  // events
-  document.getElementById('from').addEventListener('change', (e) => { if (e.target.value && e.target.value <= state.to) { state.from = e.target.value; state.preset = null; renderAll(); } else e.target.value = state.from; });
-  document.getElementById('to').addEventListener('change', (e) => { if (e.target.value && e.target.value >= state.from) { state.to = e.target.value; state.preset = null; renderAll(); } else e.target.value = state.to; });
-  document.getElementById('invest').addEventListener('change', (e) => { state.invest = e.target.checked; renderAll(); });
-  document.getElementById('oneoff').addEventListener('change', (e) => { state.oneoff = e.target.checked; renderAll(); });
-  document.getElementById('oneoffCap').addEventListener('change', (e) => { const v = Math.max(1000, +e.target.value || 50000); state.oneoffCap = v; if (state.oneoff) renderAll(); else e.target.value = v; });
-  document.getElementById('monthlyTableBtn').addEventListener('click', () => { state.monthlyTable = !state.monthlyTable; renderMonthly(selected()); });
-  document.getElementById('trendCat').addEventListener('change', (e) => { state.trendCat = e.target.value; renderTrend(TX.filter(t => baseFilter(t) && inRange(t, state.from, state.to))); });
-  let searchTimer; document.getElementById('search').addEventListener('input', (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => { state.search = e.target.value; state.shown = 150; renderTransactions(selected()); }, 120); });
-  document.querySelectorAll('[data-theme-btn]').forEach(b => b.addEventListener('click', () => { state.theme = b.getAttribute('data-theme-btn'); try { localStorage.setItem('spend-theme', state.theme); } catch (e) { /* ignore */ } applyTheme(); renderAll(); }));
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (state.theme === 'auto') renderAll(); });
-  document.getElementById('exportBtn').addEventListener('click', () => {
+  // events (bound with an abort signal so mountDashboard can be called again on new data)
+  const ac = new AbortController();
+  const on = (target, type, fn) => target.addEventListener(type, fn, { signal: ac.signal });
+  on(document.getElementById('from'), 'change', (e) => { if (e.target.value && e.target.value <= state.to) { state.from = e.target.value; state.preset = null; renderAll(); } else e.target.value = state.from; });
+  on(document.getElementById('to'), 'change', (e) => { if (e.target.value && e.target.value >= state.from) { state.to = e.target.value; state.preset = null; renderAll(); } else e.target.value = state.to; });
+  on(document.getElementById('invest'), 'change', (e) => { state.invest = e.target.checked; renderAll(); });
+  on(document.getElementById('oneoff'), 'change', (e) => { state.oneoff = e.target.checked; renderAll(); });
+  on(document.getElementById('oneoffCap'), 'change', (e) => { const v = Math.max(1000, +e.target.value || 50000); state.oneoffCap = v; if (state.oneoff) renderAll(); else e.target.value = v; });
+  on(document.getElementById('monthlyTableBtn'), 'click', () => { state.monthlyTable = !state.monthlyTable; renderMonthly(selected()); });
+  on(document.getElementById('trendCat'), 'change', (e) => { state.trendCat = e.target.value; renderTrend(TX.filter(t => baseFilter(t) && inRange(t, state.from, state.to))); });
+  let searchTimer; on(document.getElementById('search'), 'input', (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => { state.search = e.target.value; state.shown = 150; renderTransactions(selected()); }, 120); });
+  document.querySelectorAll('[data-theme-btn]').forEach(b => on(b, 'click', () => { state.theme = b.getAttribute('data-theme-btn'); try { localStorage.setItem('spend-theme', state.theme); } catch (e) { /* ignore */ } applyTheme(); renderAll(); }));
+  on(window.matchMedia('(prefers-color-scheme: dark)'), 'change', () => { if (state.theme === 'auto') renderAll(); });
+  on(document.getElementById('exportBtn'), 'click', () => {
     const list = renderTransactions.current || [];
     const esc = (s) => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"';
     const lines = ['date,merchant,note,category,bank,type,amount_czk,original_amount,currency'];
@@ -586,10 +598,14 @@ export function mountDashboard(DATA) {
     const blob = new Blob(['﻿' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'spending_' + state.from + '_' + state.to + '.csv'; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
   });
-  let resizeTimer; window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => renderKPIs(selected()), 150); });
+  let resizeTimer; on(window, 'resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => renderKPIs(selected()), 150); });
 
   renderFooter();
   renderAll();
   document.body.setAttribute('data-ready', '1');
-  return { renderAll, state };
+  function destroy() {
+    ac.abort(); clearTimeout(searchTimer); clearTimeout(resizeTimer);
+    for (const k of Object.keys(charts)) { charts[k].destroy(); delete charts[k]; }
+  }
+  return { renderAll, state, destroy };
 }
