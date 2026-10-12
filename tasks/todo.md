@@ -307,13 +307,13 @@ a screenshot. Browser found via `$BROWSER` then default paths.
 mode; IndexedDB backend with schema version 1 for the browser.
 
 **Acceptance criteria:**
-- [ ] Both backends pass the same contract test suite
-- [ ] Rows are stored as `RawRow` plus the import id; `allRows()` returns them in insertion order
-- [ ] IndexedDB backend handles a blocked or failed open by falling back to memory and flagging it in the UI
+- [x] Both backends pass the same contract test suite
+- [x] Rows are stored as `RawRow` plus the import id; `allRows()` returns them in insertion order
+- [x] IndexedDB backend handles a blocked or failed open by falling back to memory and flagging it in the UI
 
 **Verification:**
-- [ ] `node --test tests/store.test.mjs` (memory backend, contract suite)
-- [ ] Manual: IndexedDB backend exercised in Chrome via a scratch call in the console
+- [x] `node --test tests/store.test.mjs` (memory backend, contract suite)
+- [x] Manual: IndexedDB backend exercised in Chrome via a scratch call in the console
 
 **Dependencies:** T14
 **Files:** `src/store/db.js`, `src/store/memory.js`, `src/store/indexeddb.js`, `tests/store.test.mjs`
