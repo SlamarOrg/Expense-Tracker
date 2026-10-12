@@ -8,6 +8,7 @@ import defaultRules from '../rules/default-cz.json' with { type: 'json' };
 import sampleSettings from '../samples/sample-settings.json' with { type: 'json' };
 import { mountDashboard } from './ui/dashboard.js';
 import { setupImport, readFiles, renderImportResults, setNotice } from './ui/import.js';
+import { setupSettings } from './ui/settings.js';
 import { Rules } from './classifier/rules.js';
 import { createOverrides } from './store/overrides.js';
 import { openStore } from './store/db.js';
@@ -86,6 +87,14 @@ async function main() {
     persistSaved: (map) => { app.store.setSetting('overridesSaved', map).catch(ignore); },
   });
   setupImport({ onFiles: handleFiles, onSamples: loadSamples });
+  setupSettings({
+    getState: async () => ({ rulesJson: app.rulesJson, defaults: defaultRules, imports: await app.store.listImports() }),
+    onSave: async (rulesJson) => {
+      app.rulesJson = rulesJson;
+      await app.store.setSetting('rules', rulesJson);
+      await refresh();
+    },
+  });
 
   if (DEMO) {
     await loadSamples();

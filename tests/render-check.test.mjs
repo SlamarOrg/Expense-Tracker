@@ -65,3 +65,36 @@ test('importing through the file input stores rows in IndexedDB, survives a relo
     server.close();
   }
 });
+
+test('saving own accounts in settings re-classifies stored rows and persists across a reload', { skip }, async () => {
+  const server = await serve(ROOT, 0);
+  const base = `http://127.0.0.1:${server.address().port}/`;
+  const b = await launch({ browser });
+  const count = (p) => p.eval('Number(document.getElementById("txHint").textContent.split(" ")[0])');
+  try {
+    const page = await b.newPage();
+    await page.goto(base);
+    await checkPage(page);
+    await page.setFiles('body > input[type=file]', SAMPLES.slice(0, 1));
+    await page.waitFor('/20 new transactions/.test(document.getElementById("importPanel").textContent)');
+    const before = await count(page);
+
+    await page.eval('document.getElementById("settingsBtn").click()');
+    await page.waitFor('document.getElementById("settings").open && document.getElementById("setOwn")');
+    await page.eval('document.getElementById("setOwn").value = "FIO savings: 2900000002/2010"; document.getElementById("settingsSave").click()');
+    await page.waitFor('/Saved/.test(document.getElementById("settingsStatus").textContent)');
+    const after = await count(page);
+    assert.equal(after, before - 1, 'the transfer to savings is no longer spending');
+
+    await page.eval('document.getElementById("setOwn").value = "not an account"; document.getElementById("settingsSave").click()');
+    await page.waitFor('/Not saved/.test(document.getElementById("settingsStatus").textContent)');
+
+    await page.reload();
+    await checkPage(page);
+    assert.equal(await count(page), after, 'saved rules survive a reload');
+    assert.deepEqual(page.exceptions, []);
+  } finally {
+    await b.close();
+    server.close();
+  }
+});

@@ -99,7 +99,7 @@ T21 ── T22 bundler ── T23 CI + Pages + CONTRIBUTING ── T24 README �
 ### Phase 4: Import and settings
 - [x] T16 Store adapter: memory and IndexedDB
 - [x] T17 Import UI: drop zone, file cards, problems, total check
-- [ ] T18 Settings panel and re-classification
+- [x] T18 Settings panel and re-classification
 - [ ] T19 Sample loader, privacy statement, forget-my-data
 
 ### Checkpoint D: Import flow complete

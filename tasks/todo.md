@@ -345,13 +345,13 @@ import and export, reset to defaults. Any change re-runs `classify()` over all s
 re-renders.
 
 **Acceptance criteria:**
-- [ ] Adding an own account turns the matching sample transfer rows from expense to transfer without re-import
-- [ ] Importing Martin's private rules file (locally, not committed) reproduces his categories on his data
-- [ ] Invalid rules JSON is rejected with a message; settings persist via the store
+- [x] Adding an own account turns the matching sample transfer rows from expense to transfer without re-import
+- [x] Importing Martin's private rules file (locally, not committed) reproduces his categories on his data
+- [x] Invalid rules JSON is rejected with a message; settings persist via the store
 
 **Verification:**
-- [ ] `node --test tests/settings.test.mjs` on the memory store
-- [ ] Manual round trip in the browser
+- [x] `node --test tests/settings.test.mjs` on the memory store
+- [x] Manual round trip in the browser
 
 **Dependencies:** T17
 **Files:** `src/ui/settings.js`, `src/app.js`, `src/styles.css`, `tests/settings.test.mjs`

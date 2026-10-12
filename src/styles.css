@@ -232,3 +232,20 @@ body[data-empty="1"] .filters, body[data-empty="1"] .grid, body[data-empty="1"] 
 .drop-overlay { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.35); display: flex; align-items: center; justify-content: center; }
 .drop-overlay[hidden] { display: none; }
 .drop-overlay div { background: var(--surface); color: var(--ink); border: 2px dashed var(--accent); border-radius: 16px; padding: 40px 56px; font-size: 18px; font-weight: 600; }
+
+/* settings dialog */
+dialog.settings { width: min(760px, calc(100vw - 32px)); max-height: calc(100vh - 48px); overflow: auto; border: 1px solid var(--border-strong); border-radius: 14px; padding: 18px 20px; background: var(--surface); color: var(--ink); box-shadow: 0 24px 64px -24px rgba(0,0,0,.45); }
+dialog.settings::backdrop { background: rgba(0,0,0,.4); }
+.settings .privacy { margin: 0 0 14px; }
+.settings .field { margin-bottom: 14px; }
+.settings .field label { font-weight: 600; font-size: 13.5px; display: block; }
+.settings .field .hint { margin: 2px 0 6px; }
+.settings textarea { width: 100%; border: 1px solid var(--border-strong); border-radius: 8px; padding: 8px 10px; background: var(--surface-2); color: var(--ink); font: 12.5px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; resize: vertical; }
+.settings .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.settings .status { color: var(--muted); font-size: 12.5px; margin: 0; }
+.settings .status.warn { color: var(--bad); }
+.settings-section { border-top: 1px solid var(--grid); margin-top: 16px; padding-top: 12px; }
+.settings-section h3 { font-size: 14px; margin: 0 0 4px; }
+.settings-section .hint { margin: 0 0 8px; }
+.settings ul.imports { margin: 0; padding-left: 18px; font-size: 12.5px; color: var(--ink-2); }
+.settings .hint { color: var(--muted); font-size: 12.5px; }
