@@ -90,7 +90,7 @@ T21 ── T22 bundler ── T23 CI + Pages + CONTRIBUTING ── T24 README �
 ### Phase 3: Dashboard
 - [x] T13 Move dashboard into modules, unchanged behaviour
 - [ ] T14 Store-fed dashboard, overrides import/export, empty state, footer
-- [ ] T15 render-check script
+- [x] T15 render-check script
 
 ### Checkpoint C: Dashboard renders samples
 - [ ] Every feature in the private README works on sample data via the dev server

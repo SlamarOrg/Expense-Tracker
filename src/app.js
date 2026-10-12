@@ -11,7 +11,14 @@ const SAMPLES = ['samples/fio-sample.csv', 'samples/revolut-sample.csv', 'sample
 
 async function fetchJson(path) { return (await fetch(path)).json(); }
 
+function applyUrlParams() {
+  // ?theme=dark lets the headless render check force a theme; the dashboard reads it from storage
+  const theme = new URLSearchParams(location.search).get('theme');
+  if (theme && ['auto', 'light', 'dark'].includes(theme)) { try { localStorage.setItem('spend-theme', theme); } catch { /* ignore */ } }
+}
+
 async function main() {
+  applyUrlParams();
   const base = JSON.parse(JSON.stringify(await fetchJson('rules/default-cz.json')));
   const sampleSettings = await fetchJson('samples/sample-settings.json');
   for (const key of ['own_accounts', 'investment_accounts', 'category_accounts']) base[key] = { ...(base[key] || {}), ...(sampleSettings[key] || {}) };

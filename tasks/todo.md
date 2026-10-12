@@ -284,11 +284,11 @@ Chrome or Edge, dumps the DOM, asserts `data-ready="1"` and empty `#errlog`, and
 a screenshot. Browser found via `$BROWSER` then default paths.
 
 **Acceptance criteria:**
-- [ ] Exits non-zero on missing `data-ready` or any `#errlog` text
-- [ ] Works against the dev server URL now and the built file later
+- [x] Exits non-zero on missing `data-ready` or any `#errlog` text
+- [x] Works against the dev server URL now and the built file later
 
 **Verification:**
-- [ ] `node scripts/render-check.mjs http://localhost:8080/` passes; a planted `throw` in `app.js` makes it fail
+- [x] `node scripts/render-check.mjs http://localhost:8080/` passes; a planted `throw` in `app.js` makes it fail
 
 **Dependencies:** T13
 **Files:** `scripts/render-check.mjs`
