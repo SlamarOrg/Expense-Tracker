@@ -30,9 +30,10 @@ depends on it.
 - **Dashboard moves verbatim first, changes second.** Task 13 moves the existing IIFE into modules
   with no behaviour change, verified by the headless render check against the samples. Task 14 then
   changes what needs to change (store input, overrides import, empty state).
-- **Bundler is a concatenator.** Modules are concatenated in dependency order with `import` and
-  `export` lines stripped. Top-level names must be unique across modules; a test enforces it. No
-  third-party bundler, per the zero-dependency rule.
+- **Bundler is a tiny module registry.** Each module becomes a function in a registry, static
+  imports become lookups and exports become live getters, so module scopes stay separate and names
+  cannot collide (the first idea, plain concatenation, failed on `round2` defined in two parsers).
+  No third-party bundler, per the zero-dependency rule.
 - **Strings go through `t()` from Task 13 onward.** Introducing i18n after the UI exists means
   touching every string twice. The dashboard move keeps English literals, and Task 20 replaces them
   in one pass with the key-parity test as the net.
@@ -113,7 +114,7 @@ T21 ── T22 bundler ── T23 CI + Pages + CONTRIBUTING ── T24 README �
 - [x] T21 Import and settings strings, language switch, parity test
 
 ### Phase 6: Release
-- [ ] T22 Bundler
+- [x] T22 Bundler
 - [ ] T23 CI, Pages workflow, CONTRIBUTING
 - [ ] T24 README, samples README, screenshot
 - [ ] T25 Martin's migration and final checks

@@ -13,6 +13,7 @@
     "serve": "node scripts/serve.mjs",
     "samples": "node scripts/make-samples.mjs",
     "build": "node scripts/build.mjs",
+    "build:demo": "node scripts/build.mjs --with-samples --out dist/demo.html",
     "check": "node scripts/render-check.mjs dist/dashboard.html"
   }
 }

