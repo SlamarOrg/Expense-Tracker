@@ -342,8 +342,12 @@ Port of `norm`, `parse_cz_number`, `iso`, `Rules`, `tx` and `classify_flow`.
 
 1. **GitHub remote.** Which account and visibility at creation, private first then public, or
    public from the first push?
-2. **pdf.js on `file://`.** Fake worker versus inlined Blob worker is undecided until the spike
-   proves one of them in Chrome and Firefox.
+2. **pdf.js on `file://`.** Decided by the spike (T2, 2026-10-12): the worker source is inlined
+   in the page as a `text/plain` script, turned into a Blob URL and used as `workerSrc`. Works in
+   headless Chrome and Edge from `file://`. pdf.js line reconstruction (new line on `hasEOL` or a
+   y change) reproduced `pdftotext -raw` line for line on both real Air Bank statements and on
+   the synthetic PDF with diacritics. Firefox could not be tested (not installed). pdf.js
+   detaches the input buffer, so parsers must pass a copy.
 3. **Folder location.** `Projects/` is inside OneDrive. A `.git` directory under OneDrive sync is a
    known source of corrupted repos and lock errors. Keep it here, or move the repo to a folder
    outside OneDrive before `git init`?
