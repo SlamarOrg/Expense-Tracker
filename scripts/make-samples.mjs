@@ -55,8 +55,35 @@ export function fioSample() {
   return '﻿' + lines.join('\r\n') + '\r\n';
 }
 
+export function revolutSample() {
+  const header = ['Typ', 'Produkt', 'Datum zahájení', 'Datum dokončení', 'Popis', 'Částka', 'Poplatek', 'Měna', 'State', 'Zůstatek'];
+  const rows = [
+    // [type, product, started, completed, description, amount, fee, currency, state, balance]
+    ['Dobíjení', 'Aktuální', '2024-03-01 10:00:00', '2024-03-01 10:00:05', 'Dobití Apple Pay kartou *1234', '1000.00', '0.00', 'EUR', 'DOKONČENO', '1000.00'],
+    ['Směna', 'Aktuální', '2024-03-02 09:00:00', '2024-03-02 09:00:00', 'Exchanged to USD', '-200.00', '0.00', 'EUR', 'DOKONČENO', '800.00'],
+    ['Směna', 'Aktuální', '2024-03-02 09:00:00', '2024-03-02 09:00:00', 'Exchanged from EUR', '216.00', '0.00', 'USD', 'DOKONČENO', '216.00'],
+    ['Platba kartou', 'Aktuální', '2024-03-03 08:36:06', '2024-03-04 03:12:33', 'Record Go', '-379.44', '0.00', 'EUR', 'DOKONČENO', '420.56'],
+    ['Platba kartou', 'Aktuální', '2024-03-05 18:20:00', '2024-03-06 02:00:00', 'Shell Wien', '-40.00', '0.50', 'EUR', 'DOKONČENO', '380.06'],
+    ['Platba kartou', 'Aktuální', '2024-03-06 12:00:00', '2024-03-06 12:00:01', 'Revolut Transfer to savings', '-20.00', '0.00', 'EUR', 'DOKONČENO', '360.06'],
+    ['Platba kartou', 'Aktuální', '2024-03-07 12:00:00', '2024-03-07 12:00:01', 'Hotel Rejected', '-99.00', '0.00', 'EUR', 'VRÁCENO ZPĚT', '360.06'],
+    ['Poplatek', 'Investice', '2024-03-10 08:48:55', '2024-03-10 08:48:55', 'Custody fees', '-0.05', '0.00', 'USD', 'DOKONČENO', '215.95'],
+    ['Účtovat', 'Aktuální', '2024-03-12 03:08:36', '2024-03-12 03:08:36', 'Poplatek za plán Premium', '0.00', '10.14', 'EUR', 'DOKONČENO', '349.92'],
+    ['FEE_REVERSAL', 'Investice', '2024-03-14 16:44:19', '2024-03-14 16:44:19', 'Reversal of custody fee duplication', '0.05', '0.00', 'USD', 'DOKONČENO', '216.00'],
+    ['TRADE', 'Investice', '2024-03-15 23:18:31', '2024-03-18 02:19:57', 'Investing money', '-150.00', '0.00', 'USD', 'DOKONČENO', '66.00'],
+    ['TRADE', 'Investice', '2024-03-20 23:18:31', '2024-03-22 02:19:57', 'Sold AAPL', '60.00', '0.00', 'USD', 'DOKONČENO', '126.00'],
+    ['Převod', 'Aktuální', '2024-03-21 09:17:19', '2024-03-21 09:17:21', 'To DEGIRO', '-100.00', '0.00', 'EUR', 'DOKONČENO', '249.92'],
+    ['Převod', 'Aktuální', '2024-03-22 09:17:19', '2024-03-22 09:17:21', 'To Jana Nováková', '-50.00', '0.00', 'EUR', 'DOKONČENO', '199.92'],
+    ['Převod', 'Aktuální', '2024-03-23 09:17:19', '2024-03-23 09:17:21', 'From Petr Novák', '30.00', '0.00', 'EUR', 'DOKONČENO', '229.92'],
+    ['Cashback', 'Aktuální', '2024-03-25 00:00:00', '2024-03-25 00:00:00', 'Cashback March', '1.50', '0.00', 'EUR', 'DOKONČENO', '231.42'],
+  ];
+  const lines = [header.join(',')];
+  for (const r of rows) lines.push(r.join(','));
+  return lines.join('\n') + '\n';
+}
+
 if (process.argv[1] && /make-samples\.mjs$/.test(process.argv[1].replace(/\\/g, '/'))) {
   await mkdir(OUT, { recursive: true });
   await writeFile(new URL('fio-sample.csv', OUT), fioSample(), 'utf8');
-  console.log('wrote samples/fio-sample.csv');
+  await writeFile(new URL('revolut-sample.csv', OUT), revolutSample(), 'utf8');
+  console.log('wrote samples/fio-sample.csv, samples/revolut-sample.csv');
 }

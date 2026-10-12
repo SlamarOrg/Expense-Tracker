@@ -151,11 +151,11 @@ quotes, CRLF and LF, BOM stripping, header row to objects.
 **Description:** Same slice for Revolut.
 
 **Acceptance criteria:**
-- [ ] Sample has `Platba kartou` with fee, `Směna` pair, `Dobíjení`, `TRADE` buy and sell, `Převod` to a broker (investment keyword) and to a person, `Poplatek`, `FEE_REVERSAL`, one non-`DOKONČENO` row, English-header variant covered by the test
-- [ ] Parser is a port of `parse_revolut`, fee netted into card amount, exchange legs skipped
+- [x] Sample has `Platba kartou` with fee, `Směna` pair, `Dobíjení`, `TRADE` buy and sell, `Převod` to a broker (investment keyword) and to a person, `Poplatek`, `FEE_REVERSAL`, one non-`DOKONČENO` row, English-header variant covered by the test
+- [x] Parser is a port of `parse_revolut`, fee netted into card amount, exchange legs skipped
 
 **Verification:**
-- [ ] `node --test tests/revolut.test.mjs`: snapshot, branch coverage, idempotent sample
+- [x] `node --test tests/revolut.test.mjs`: snapshot, branch coverage, idempotent sample
 
 **Dependencies:** T4, T6
 **Files:** `scripts/make-samples.mjs`, `samples/revolut-sample.csv`, `src/parsers/revolut.js`, `tests/revolut.test.mjs`, `tests/snapshots/revolut.json`
