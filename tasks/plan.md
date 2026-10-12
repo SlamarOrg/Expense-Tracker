@@ -68,7 +68,7 @@ T21 ── T22 bundler ── T23 CI + Pages + CONTRIBUTING ── T24 README �
 - [ ] If the spike failed: stop, revise the plan around Air Bank CSV, get approval
 
 ### Phase 1: Classifier and foundations
-- [ ] T3 normalize helpers
+- [x] T3 normalize helpers
 - [ ] T4 Rules and classify
 - [ ] T5 Default ruleset, cleaned and reviewed
 - [ ] T6 CSV reader

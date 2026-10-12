@@ -60,12 +60,12 @@ strategies.
 **Description:** Port `norm`, `parse_cz_number` and `iso` to `src/classifier/normalize.js`.
 
 **Acceptance criteria:**
-- [ ] `norm()` lowercases, strips diacritics (NFKD), collapses whitespace, handles `null`
-- [ ] `parseCzNumber()` handles thin and normal spaces, comma decimals, empty and `-` as 0
-- [ ] `isoDate()` accepts `d.m.yyyy` and `dd.mm.yyyy`
+- [x] `norm()` lowercases, strips diacritics (NFKD), collapses whitespace, handles `null`
+- [x] `parseCzNumber()` handles thin and normal spaces, comma decimals, empty and `-` as 0
+- [x] `isoDate()` accepts `d.m.yyyy` and `dd.mm.yyyy`
 
 **Verification:**
-- [ ] `node --test tests/normalize.test.mjs` with at least 15 cases including `Dekujeme, ROHLIK.CZ`, `-1 012,00`, `3.1.2024`
+- [x] `node --test tests/normalize.test.mjs` with at least 15 cases including `Dekujeme, ROHLIK.CZ`, `-1 012,00`, `3.1.2024`
 
 **Dependencies:** T1
 **Files:** `src/classifier/normalize.js`, `tests/normalize.test.mjs`
