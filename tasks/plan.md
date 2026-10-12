@@ -71,7 +71,7 @@ T21 ── T22 bundler ── T23 CI + Pages + CONTRIBUTING ── T24 README �
 - [x] T3 normalize helpers
 - [x] T4 Rules and classify
 - [ ] T5 Default ruleset, cleaned and reviewed
-- [ ] T6 CSV reader
+- [x] T6 CSV reader
 
 ### Phase 2: Parsers, one bank per slice
 - [ ] T7 FIO: sample, parser, snapshot

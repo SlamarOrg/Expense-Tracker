@@ -116,11 +116,11 @@ Martin's OK.
 quotes, CRLF and LF, BOM stripping, header row to objects.
 
 **Acceptance criteria:**
-- [ ] Parses FIO style (`;`, all fields quoted, BOM) and Revolut style (`,`, unquoted) correctly
-- [ ] A quoted field containing the delimiter and a newline round-trips
+- [x] Parses FIO style (`;`, all fields quoted, BOM) and Revolut style (`,`, unquoted) correctly
+- [x] A quoted field containing the delimiter and a newline round-trips
 
 **Verification:**
-- [ ] `node --test tests/csv.test.mjs` with at least 8 cases
+- [x] `node --test tests/csv.test.mjs` with at least 8 cases
 
 **Dependencies:** T1
 **Files:** `src/parsers/csv.js`, `tests/csv.test.mjs`
