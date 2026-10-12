@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { Rules } from '../src/classifier/rules.js';
+import { Rules, normKeyword } from '../src/classifier/rules.js';
 import { classify, classifyFlow, KIND } from '../src/classifier/classify.js';
 
 const rules = Rules.from(JSON.parse(readFileSync(new URL('./fixtures/rules.json', import.meta.url), 'utf8')));
@@ -55,6 +55,15 @@ test('regression: a short keyword must not match inside another word', () => {
   assert.equal(rules.categorize('Nákup: MERCHANT, dne 1.1.2024, částka 120.50 CZK'), 'Other');
   assert.equal(rules.categorize('STK Brno, Praha'), 'Transport');
   assert.equal(rules.categorize('Prohlidka STK'), 'Transport'); // trailing-space keyword at the end of the text
+  assert.equal(rules.categorize('xstk y'), 'Transport'); // only the trailing space is significant, not a leading one
+  assert.equal(rules.categorize('mol praha'), 'Transport');
+  assert.equal(rules.categorize('molekula'), 'Other');
+});
+
+test('normKeyword keeps edge spaces and normalizes the inside', () => {
+  assert.equal(normKeyword('stk '), 'stk ');
+  assert.equal(normKeyword(' Kavárna  U Mě '), ' kavarna u me ');
+  assert.equal(normKeyword('Billa'), 'billa');
 });
 
 const flowCases = [

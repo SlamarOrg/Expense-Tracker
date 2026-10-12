@@ -8,7 +8,7 @@ import { norm } from './normalize.js';
 // Keywords keep an intentional leading or trailing space ("stk " must not match "částka"),
 // while the inside is normalized like any text. Matching pads the text with spaces so that a
 // trailing-space keyword still matches at the very end of a message.
-export const normKeyword = (k) => (/^s/.test(k) ? ' ' : '') + norm(k) + (/s$/.test(k) ? ' ' : '');
+export const normKeyword = (k) => (/^\s/.test(k) ? ' ' : '') + norm(k) + (/\s$/.test(k) ? ' ' : '');
 
 const stripAccount = (acct) => String(acct || '').split('/')[0].trim().replace(/^0+/, '');
 
