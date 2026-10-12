@@ -16,7 +16,7 @@ function raw(over = {}) {
 }
 
 test('Rules.from reads the categories.json schema and ignores underscore keys', () => {
-  assert.deepEqual(rules.categoryNames, ['Subscriptions', 'Groceries', 'Transport', 'Restaurants & cafés', 'Housing & utilities', 'Other']);
+  assert.deepEqual(rules.categoryNames, ['Subscriptions', 'Cash withdrawals', 'Groceries', 'Transport', 'Restaurants & cafés', 'Housing & utilities', 'Other']);
   assert.deepEqual([...rules.ownAccounts].sort(), ['1000000001', '2900000001', '2900000002']);
   assert.deepEqual(rules.folded, ['Subscriptions']);
   assert.equal(rules.fx.EUR, 25);

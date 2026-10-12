@@ -135,12 +135,12 @@ quotes, CRLF and LF, BOM stripping, header row to objects.
 `RawRow[]`, and a snapshot test.
 
 **Acceptance criteria:**
-- [ ] Sample has card purchase with `dne` and `částka` in EUR, `Kredit:` refund, ATM withdrawal, Revolut top-up, own-account transfer, fixed-account payment with empty message, interest, interest tax, salary, and a `REVOLT` bank code row
-- [ ] Parser is a port of `parse_fio` including `FIO_CARD_RE`, purchase-date override, ATM prefix, refund hint, Revolut-as-transfer rules
-- [ ] `classify()` on the sample yields the expected kind per row (asserted explicitly, not only by snapshot)
+- [x] Sample has card purchase with `dne` and `částka` in EUR, `Kredit:` refund, ATM withdrawal, Revolut top-up, own-account transfer, fixed-account payment with empty message, interest, interest tax, salary, and a `REVOLT` bank code row
+- [x] Parser is a port of `parse_fio` including `FIO_CARD_RE`, purchase-date override, ATM prefix, refund hint, Revolut-as-transfer rules
+- [x] `classify()` on the sample yields the expected kind per row (asserted explicitly, not only by snapshot)
 
 **Verification:**
-- [ ] `node --test tests/fio.test.mjs`: snapshot of all rows, branch-coverage assertion (each listed branch hit at least once), `make-samples.mjs` idempotent
+- [x] `node --test tests/fio.test.mjs`: snapshot of all rows, branch-coverage assertion (each listed branch hit at least once), `make-samples.mjs` idempotent
 
 **Dependencies:** T4, T6
 **Files:** `scripts/make-samples.mjs`, `samples/fio-sample.csv`, `src/parsers/fio.js`, `tests/fio.test.mjs`, `tests/snapshots/fio.json`
