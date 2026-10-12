@@ -387,12 +387,12 @@ that clears the store and reloads to the empty state.
 default; `en.json` and `cs.json`; replace every literal in `dashboard.js` and `tooltip.js`.
 
 **Acceptance criteria:**
-- [ ] Missing key renders the key and throws under test; Czech falls back to English per key
-- [ ] Chart labels, tooltips, KPI tiles, table headers and presets switch language without reload
+- [x] Missing key renders the key and throws under test; Czech falls back to English per key
+- [x] Chart labels, tooltips, KPI tiles, table headers and presets switch language without reload
 
 **Verification:**
-- [ ] `node --test tests/i18n.test.mjs`: parity of key sets, fallback, parameter substitution
-- [ ] Manual: toggle language on the dev server
+- [x] `node --test tests/i18n.test.mjs`: parity of key sets, fallback, parameter substitution
+- [x] Manual: toggle language on the dev server
 
 **Dependencies:** T19
 **Files:** `src/i18n/index.js`, `src/i18n/en.json`, `src/i18n/cs.json`, `src/ui/dashboard.js`, `tests/i18n.test.mjs`

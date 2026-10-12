@@ -10,6 +10,7 @@ import { mountDashboard } from './ui/dashboard.js';
 import { setupImport, readFiles, renderImportResults, setNotice } from './ui/import.js';
 import { setupSettings } from './ui/settings.js';
 import { setupTheme, setTheme } from './ui/theme.js';
+import { detectLanguage, setLanguage } from './i18n/index.js';
 import { Rules } from './classifier/rules.js';
 import { createOverrides } from './store/overrides.js';
 import { openStore } from './store/db.js';
@@ -28,6 +29,7 @@ const app = { store: null, rulesJson: null, rules: null, overrides: null, dashbo
 function applyUrlParams() {
   const theme = params.get('theme');
   if (theme) setTheme(theme);
+  setLanguage(params.get('lang') || detectLanguage(), { persist: Boolean(params.get('lang')) });
 }
 
 /** Re-classify every stored row with the current rules and remount the dashboard. */

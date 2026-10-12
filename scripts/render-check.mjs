@@ -62,7 +62,6 @@ export async function renderCheck(target, { theme, lang, screenshot, width = 140
     await page.goto(toUrl(target, { theme, lang }));
     const result = await checkPage(page, { timeout });
     if (screenshot) {
-      await new Promise((r) => setTimeout(r, 400)); // let chart animations settle
       await page.screenshot(resolve(screenshot));
     }
     return result;

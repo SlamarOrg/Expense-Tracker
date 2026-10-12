@@ -108,15 +108,21 @@ class Page {
     await this.s.send('DOM.setFileInputFiles', { nodeId, files: paths });
   }
 
-  async screenshot(path, { fullPage = true } = {}) {
+  /**
+   * Full-page screenshots grow the viewport to the page height first and wait, because responsive
+   * charts re-layout (and animate) on resize; capturing beyond the viewport catches them mid-way.
+   */
+  async screenshot(path, { fullPage = true, settle = 900 } = {}) {
     const { writeFileSync } = await import('node:fs');
-    let clip;
+    const view = await this.eval('({ w: window.innerWidth, h: window.innerHeight })');
     if (fullPage) {
-      const size = await this.eval('({ w: document.documentElement.scrollWidth, h: document.documentElement.scrollHeight })');
-      clip = { x: 0, y: 0, width: size.w, height: size.h, scale: 1 };
+      const h = await this.eval('document.documentElement.scrollHeight');
+      await this.s.send('Emulation.setDeviceMetricsOverride', { width: view.w, height: h, deviceScaleFactor: 1, mobile: false });
+      await sleep(settle);
     }
-    const { data } = await this.s.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: fullPage, ...(clip ? { clip } : {}) });
+    const { data } = await this.s.send('Page.captureScreenshot', { format: 'png' });
     writeFileSync(path, Buffer.from(data, 'base64'));
+    if (fullPage) await this.s.send('Emulation.setDeviceMetricsOverride', { width: view.w, height: view.h, deviceScaleFactor: 1, mobile: false });
   }
 }
 

@@ -109,7 +109,7 @@ T21 ── T22 bundler ── T23 CI + Pages + CONTRIBUTING ── T24 README �
 - [ ] Review with Martin (folded into the final report, autonomous run)
 
 ### Phase 5: Languages
-- [ ] T20 i18n core and dashboard strings
+- [x] T20 i18n core and dashboard strings
 - [ ] T21 Import and settings strings, language switch, parity test
 
 ### Phase 6: Release

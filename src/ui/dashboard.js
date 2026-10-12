@@ -8,6 +8,7 @@
 import { el, clear } from './dom.js';
 import { showTip, tipRow } from './tooltip.js';
 import { applyOverrides } from '../store/overrides.js';
+import * as i18n from '../i18n/index.js';
 
 /**
  * @param {{tx: object[], categories: string[], folded?: string[], fx?: object, overrides?: object, meta?: object}} DATA
@@ -17,7 +18,7 @@ export function mountDashboard(DATA) {
   const spending = (DATA && DATA.tx ? DATA.tx : []).filter(t => t.k === 'expense' || t.k === 'investment');
   if (!spending.length) {
     document.body.setAttribute('data-empty', '1');
-    document.getElementById('subtitle').textContent = 'No statements loaded yet.';
+    document.getElementById('subtitle').textContent = i18n.t('dash.noData');
     document.body.setAttribute('data-ready', '1');
     return null;
   }
@@ -27,7 +28,8 @@ export function mountDashboard(DATA) {
   const TX = spending;
   const FOLDED = new Set(DATA.folded || []);
   const SLOT_ORDER = ['Groceries', 'Restaurants & cafés', 'Transport', 'Entertainment', 'Subscriptions', 'Shopping', 'Housing & utilities', 'Travel'];
-  const OTHER_LABEL = 'Everything else';
+  const OTHER_LABEL = i18n.t('chart.everythingElse');
+  const ALL_SPENDING = i18n.t('trend.all');
   const INVEST = 'Investments';
   const BANKS = ['FIO', 'Airbank', 'Revolut'].filter(b => TX.some(t => t.s === b));
   const ALL_CATS = (DATA.categories || []).slice();
@@ -45,10 +47,10 @@ export function mountDashboard(DATA) {
   const fmtCZK2 = new Intl.NumberFormat('cs-CZ', { style: 'currency', currency: 'CZK', minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const fmtPct = (x) => (x > 0 ? '+' : '') + Math.round(x * 100) + ' %';
   const fmtCompact = (n) => Math.abs(n) >= 1e6 ? (n / 1e6).toFixed(1).replace(/\.0$/, '') + 'M' : Math.abs(n) >= 1e3 ? Math.round(n / 1e3) + 'k' : String(Math.round(n));
-  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const fmtMonth = (ym) => MONTHS[+ym.slice(5, 7) - 1] + ' ' + ym.slice(0, 4);
-  const fmtDay = (iso) => { const d = new Date(iso + 'T00:00:00'); return d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear(); };
-  const fmtDayShort = (iso) => { const d = new Date(iso + 'T00:00:00'); return d.getDate() + ' ' + MONTHS[d.getMonth()]; };
+  const MONTHS = Array.from({ length: 12 }, (_, i) => i18n.t('month.' + i));
+  const fmtMonth = (ym) => i18n.t('date.month', { m: MONTHS[+ym.slice(5, 7) - 1], y: ym.slice(0, 4) });
+  const fmtDay = (iso) => { const d = new Date(iso + 'T00:00:00'); return i18n.t('date.day', { d: d.getDate(), m: MONTHS[d.getMonth()], y: d.getFullYear() }); };
+  const fmtDayShort = (iso) => { const d = new Date(iso + 'T00:00:00'); return i18n.t('date.dayShort', { d: d.getDate(), m: MONTHS[d.getMonth()] }); };
   const isoOf = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   const addDays = (iso, n) => { const d = new Date(iso + 'T00:00:00'); d.setDate(d.getDate() + n); return isoOf(d); };
   const addMonths = (iso, n) => { const d = new Date(iso + 'T00:00:00'); d.setMonth(d.getMonth() + n); return isoOf(d); };
@@ -80,16 +82,16 @@ export function mountDashboard(DATA) {
   const state = {
     from: addMonths(MAX_DATE.slice(0, 8) + '01', -11), to: MAX_DATE, preset: '12m',
     banks: new Set(BANKS), invest: false, cat: null, search: '', sortKey: 'd', sortDir: -1, shown: 150,
-    trendCat: 'All spending', monthlyTable: false, oneoff: false, oneoffCap: 50000
+    trendCat: ALL_SPENDING, monthlyTable: false, oneoff: false, oneoffCap: 50000
   };
 
   const PRESETS = [
-    { id: '30d', label: '30 days', from: () => addDays(MAX_DATE, -29) },
-    { id: '3m', label: '3 months', from: () => addMonths(MAX_DATE.slice(0, 8) + '01', -2) },
-    { id: '6m', label: '6 months', from: () => addMonths(MAX_DATE.slice(0, 8) + '01', -5) },
-    { id: '12m', label: '12 months', from: () => addMonths(MAX_DATE.slice(0, 8) + '01', -11) },
-    { id: 'ytd', label: 'This year', from: () => MAX_DATE.slice(0, 4) + '-01-01' },
-    { id: 'all', label: 'All time', from: () => MIN_DATE },
+    { id: '30d', label: i18n.t('preset.30d'), from: () => addDays(MAX_DATE, -29) },
+    { id: '3m', label: i18n.t('preset.3m'), from: () => addMonths(MAX_DATE.slice(0, 8) + '01', -2) },
+    { id: '6m', label: i18n.t('preset.6m'), from: () => addMonths(MAX_DATE.slice(0, 8) + '01', -5) },
+    { id: '12m', label: i18n.t('preset.12m'), from: () => addMonths(MAX_DATE.slice(0, 8) + '01', -11) },
+    { id: 'ytd', label: i18n.t('preset.ytd'), from: () => MAX_DATE.slice(0, 4) + '-01-01' },
+    { id: 'all', label: i18n.t('preset.all'), from: () => MIN_DATE },
   ];
 
   // ---------------------------------------------------------------- filtering
@@ -162,7 +164,7 @@ export function mountDashboard(DATA) {
     if (state.cat) {
       const c = el('button', 'chip cat-chip'); const d = el('span', 'dot'); d.style.background = colorOf(state.cat);
       c.appendChild(d); c.appendChild(document.createTextNode(state.cat)); c.appendChild(el('span', 'x', '×'));
-      c.title = 'Clear category filter'; c.addEventListener('click', () => { state.cat = null; renderAll(); });
+      c.title = i18n.t('filter.clearCat'); c.addEventListener('click', () => { state.cat = null; renderAll(); });
       cf.appendChild(c);
     }
   }
@@ -184,30 +186,30 @@ export function mountDashboard(DATA) {
     const tile = (cls) => { const c = el('div', 'card kpi ' + (cls || '')); k.appendChild(c); return c; };
 
     const t1 = tile('hero');
-    t1.appendChild(el('div', 'label', state.cat ? state.cat + ' in this range' : 'Spent in this range'));
+    t1.appendChild(el('div', 'label', state.cat ? i18n.t('kpi.spentCat', { cat: state.cat }) : i18n.t('kpi.spent')));
     t1.appendChild(el('div', 'value', fmtCZK.format(total)));
     const d1 = el('div', 'delta ' + (delta == null ? '' : delta > 0 ? 'up' : 'down'));
-    if (delta == null) d1.appendChild(el('span', null, 'No previous period to compare')); else { d1.appendChild(el('b', null, fmtPct(delta))); d1.appendChild(el('span', null, 'vs previous ' + days + ' days (' + fmtCZK.format(prev) + ')')); }
+    if (delta == null) d1.appendChild(el('span', null, i18n.t('kpi.noPrev'))); else { d1.appendChild(el('b', null, fmtPct(delta))); d1.appendChild(el('span', null, i18n.t('kpi.vsPrev', { days, amount: fmtCZK.format(prev) }))); }
     t1.appendChild(d1);
     if (months.length > 1) { const sp = el('div', 'spark'); const cv = document.createElement('canvas'); sp.appendChild(cv); t1.appendChild(sp); drawSpark(cv, months.map(m => byMonth.get(m) || 0)); }
 
     const t2 = tile();
-    t2.appendChild(el('div', 'label', 'Average per month'));
+    t2.appendChild(el('div', 'label', i18n.t('kpi.avgMonth')));
     t2.appendChild(el('div', 'value', fmtCZK.format(perMonth)));
-    t2.appendChild(el('div', 'delta', fmtCZK.format(total / Math.max(1, days / 7)) + ' per week · ' + fmtCZK.format(total / Math.max(1, days)) + ' per day'));
+    t2.appendChild(el('div', 'delta', i18n.t('kpi.perWeekDay', { week: fmtCZK.format(total / Math.max(1, days / 7)), day: fmtCZK.format(total / Math.max(1, days)) })));
 
     const t3 = tile();
-    t3.appendChild(el('div', 'label', 'Biggest category'));
+    t3.appendChild(el('div', 'label', i18n.t('kpi.biggest')));
     if (top) {
       const v = el('div', 'value'); const sw = el('span', 'swatch'); sw.style.background = colorOf(top[0]); v.appendChild(sw); v.appendChild(document.createTextNode(top[0])); v.style.fontSize = top[0].length > 14 ? '22px' : '26px'; t3.appendChild(v);
-      t3.appendChild(el('div', 'delta', fmtCZK.format(top[1]) + ' · ' + Math.round(top[1] / total * 100) + ' % of the total'));
-    } else { t3.appendChild(el('div', 'value', '—')); t3.appendChild(el('div', 'delta', 'No spending in range')); }
+      t3.appendChild(el('div', 'delta', i18n.t('kpi.share', { amount: fmtCZK.format(top[1]), pct: Math.round(top[1] / total * 100) })));
+    } else { t3.appendChild(el('div', 'value', '—')); t3.appendChild(el('div', 'delta', i18n.t('kpi.noSpending'))); }
 
     const t4 = tile();
-    t4.appendChild(el('div', 'label', 'Transactions'));
+    t4.appendChild(el('div', 'label', i18n.t('kpi.transactions')));
     t4.appendChild(el('div', 'value', String(rows.length)));
     const biggest = rows.slice().sort((a, b) => b.amt - a.amt)[0];
-    t4.appendChild(el('div', 'delta', biggest ? 'Largest: ' + fmtCZK.format(biggest.amt) + ' at ' + (biggest.m || biggest.t) : '—'));
+    t4.appendChild(el('div', 'delta', biggest ? i18n.t('kpi.largest', { amount: fmtCZK.format(biggest.amt), merchant: biggest.m || biggest.t }) : '—'));
   }
 
   function drawSpark(canvas, values) {
@@ -249,13 +251,13 @@ export function mountDashboard(DATA) {
       box.appendChild(el('div', 'total', fmtCZK.format(totals[i])));
       const items = series.map((s, j) => [s, perSeries[j][i]]).filter(x => x[1] !== 0).sort((a, b) => b[1] - a[1]);
       for (const [s, v] of items) tipRow(box, colorOf(s), s, fmtCZK.format(v), totals[i] ? Math.round(v / totals[i] * 100) + ' %' : '');
-      if (months[i] === MAX_DATE.slice(0, 7) && state.to === MAX_DATE) box.appendChild(el('div', 'sub', 'Current month, data through ' + fmtDayShort(MAX_DATE)));
+      if (months[i] === MAX_DATE.slice(0, 7) && state.to === MAX_DATE) box.appendChild(el('div', 'sub', i18n.t('monthly.currentMonth', { date: fmtDayShort(MAX_DATE) })));
     });
     const labels = months.map(ym => months.length > 18 ? (ym.endsWith('-01') ? ym.slice(0, 4) : MONTHS[+ym.slice(5, 7) - 1].slice(0, 1)) : fmtMonth(ym).replace(/ 20/, " '"));
     if (months.length > 36) opt.scales.x.ticks.callback = (v, i) => months[i].endsWith('-01') ? months[i].slice(0, 4) : '';
     upsert('monthly', document.getElementById('monthly'), { type: 'bar', data: { labels, datasets }, options: opt });
-    document.getElementById('monthlyTitle').textContent = state.cat ? state.cat + ' per month' : 'Spending per month';
-    document.getElementById('monthlyHint').textContent = state.cat ? 'Only ' + state.cat + ' is shown. Clear the category chip in the filter bar to see everything again.' : 'Stacked by category. Hover a month for the breakdown, click a legend entry to focus one category.';
+    document.getElementById('monthlyTitle').textContent = state.cat ? i18n.t('monthly.titleCat', { cat: state.cat }) : i18n.t('monthly.title');
+    document.getElementById('monthlyHint').textContent = state.cat ? i18n.t('monthly.hintCat', { cat: state.cat }) : i18n.t('monthly.hint');
 
     const lg = clear(document.getElementById('monthlyLegend'));
     for (const s of series) {
@@ -270,7 +272,7 @@ export function mountDashboard(DATA) {
     tw.hidden = !state.monthlyTable; document.getElementById('monthlyTableBtn').setAttribute('aria-pressed', String(state.monthlyTable));
     if (state.monthlyTable) {
       const allCats = [...cats].sort((a, b) => (SLOT_ORDER.indexOf(a) === -1 ? 99 : SLOT_ORDER.indexOf(a)) - (SLOT_ORDER.indexOf(b) === -1 ? 99 : SLOT_ORDER.indexOf(b)) || a.localeCompare(b));
-      const table = el('table'); const thead = el('thead'); const hr = el('tr'); hr.appendChild(el('th', null, 'Month')); hr.appendChild(el('th', 'num', 'Total'));
+      const table = el('table'); const thead = el('thead'); const hr = el('tr'); hr.appendChild(el('th', null, i18n.t('monthly.colMonth'))); hr.appendChild(el('th', 'num', i18n.t('monthly.colTotal')));
       for (const c of allCats) hr.appendChild(el('th', 'num', c)); thead.appendChild(hr); table.appendChild(thead);
       const tb = el('tbody');
       months.slice().reverse().forEach((ym) => { const i = months.indexOf(ym); const tr = el('tr'); tr.appendChild(el('td', null, fmtMonth(ym))); tr.appendChild(el('td', 'num', fmtCZK.format(totals[i])));
@@ -295,7 +297,7 @@ export function mountDashboard(DATA) {
         const cx = (chartArea.left + chartArea.right) / 2, cy = (chartArea.top + chartArea.bottom) / 2;
         ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillStyle = css('--ink'); ctx.font = '600 20px system-ui, -apple-system, "Segoe UI", sans-serif'; ctx.fillText(fmtCompact(total) + ' Kč', cx, cy - 8);
-        ctx.fillStyle = css('--muted'); ctx.font = '12px system-ui, -apple-system, "Segoe UI", sans-serif'; ctx.fillText(state.cat ? 'all categories' : 'in range', cx, cy + 12);
+        ctx.fillStyle = css('--muted'); ctx.font = '12px system-ui, -apple-system, "Segoe UI", sans-serif'; ctx.fillText(state.cat ? i18n.t('donut.allCats') : i18n.t('donut.inRange'), cx, cy + 12);
         ctx.restore();
       }
     };
@@ -307,7 +309,7 @@ export function mountDashboard(DATA) {
         plugins: { legend: { display: false }, tooltip: { enabled: false, external: (c) => showTip(c.chart, c.tooltip, (box) => {
           const dp = c.tooltip.dataPoints[0]; const l = labels[dp.dataIndex], v = values[dp.dataIndex];
           box.appendChild(el('div', 't', l)); box.appendChild(el('div', 'total', fmtCZK.format(v)));
-          box.appendChild(el('div', 'sub', Math.round(v / total * 100) + ' % of ' + fmtCZK.format(total)));
+          box.appendChild(el('div', 'sub', i18n.t('donut.shareOf', { pct: Math.round(v / total * 100), total: fmtCZK.format(total) })));
           if (l === OTHER_LABEL) box.appendChild(el('div', 'sub', byCat.filter(x => !labels.includes(x[0])).map(x => x[0]).join(', ')));
         }) } },
         onClick: (evt, els) => { if (!els.length) return; const l = labels[els[0].index]; if (l === OTHER_LABEL) return; state.cat = state.cat === l ? null : l; renderAll(); }
@@ -328,7 +330,7 @@ export function mountDashboard(DATA) {
       li.addEventListener('click', act); li.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); act(); } });
       ul.appendChild(li);
     }
-    if (!byCat.length) ul.appendChild(el('li', 'empty', 'Nothing to show for this selection.'));
+    if (!byCat.length) ul.appendChild(el('li', 'empty', i18n.t('donut.nothing')));
   }
 
   function renderWeekly(rows) {
@@ -341,15 +343,15 @@ export function mountDashboard(DATA) {
     const complete = show.filter(k => k >= state.from && addDays(k, 6) <= state.to);
     const avgBase = complete.length ? complete : show;
     const avg = avgBase.reduce((a, k) => a + (byWeek.get(k) || 0), 0) / Math.max(1, avgBase.length);
-    document.getElementById('weeklyHint').textContent = (weeks.length > 16 ? 'Last 16 weeks of the range' : 'Weeks in the range') + ' · average ' + fmtCZK.format(avg) + ' per full week (Mon–Sun).';
+    document.getElementById('weeklyHint').textContent = i18n.t(weeks.length > 16 ? 'weekly.hintLast16' : 'weekly.hintAll', { avg: fmtCZK.format(avg) });
     const label = (k) => fmtDayShort(k);
     const opt = baseOptions();
     opt.interaction = { mode: 'index', intersect: false };
     opt.plugins.tooltip.external = (c) => showTip(c.chart, c.tooltip, (box) => {
       const i = c.tooltip.dataPoints[0].dataIndex; const k = show[i];
-      box.appendChild(el('div', 't', 'Week of ' + fmtDay(k) + ' – ' + fmtDayShort(addDays(k, 6))));
+      box.appendChild(el('div', 't', i18n.t('weekly.weekOf', { from: fmtDay(k), to: fmtDayShort(addDays(k, 6)) })));
       box.appendChild(el('div', 'total', fmtCZK.format(vals[i])));
-      const d = avg ? (vals[i] - avg) / avg : 0; box.appendChild(el('div', 'sub', fmtPct(d) + ' vs weekly average'));
+      const d = avg ? (vals[i] - avg) / avg : 0; box.appendChild(el('div', 'sub', i18n.t('weekly.vsAvg', { pct: fmtPct(d) })));
       const cats = [...(byWeekCat.get(k) || new Map()).entries()].filter(x => x[1] > 0).sort((a, b) => b[1] - a[1]).slice(0, 4);
       for (const [cat, v] of cats) tipRow(box, colorOf(cat), cat, fmtCZK.format(v), vals[i] ? Math.round(v / vals[i] * 100) + ' %' : '');
     });
@@ -357,15 +359,15 @@ export function mountDashboard(DATA) {
     upsert('weekly', document.getElementById('weekly'), {
       type: 'bar',
       data: { labels: show.map(label), datasets: [
-        { type: 'line', label: 'Average', data: show.map(() => Math.round(avg)), borderColor: css('--axis'), borderWidth: 1.5, pointRadius: 0, pointHitRadius: 0, fill: false, order: 0 },
-        { label: 'Spent', data: vals, backgroundColor: barColor, hoverBackgroundColor: lift(barColor), borderRadius: { topLeft: 4, topRight: 4 }, borderSkipped: 'bottom', maxBarThickness: 24, order: 1 }
+        { type: 'line', label: i18n.t('chart.average'), data: show.map(() => Math.round(avg)), borderColor: css('--axis'), borderWidth: 1.5, pointRadius: 0, pointHitRadius: 0, fill: false, order: 0 },
+        { label: i18n.t('chart.spent'), data: vals, backgroundColor: barColor, hoverBackgroundColor: lift(barColor), borderRadius: { topLeft: 4, topRight: 4 }, borderSkipped: 'bottom', maxBarThickness: 24, order: 1 }
       ] },
       options: opt
     });
     // table
     const table = clear(document.getElementById('weeklyTable'));
     const thead = el('thead'); const hr = el('tr');
-    for (const [txt, cls] of [['Week', ''], ['Spent', 'num'], ['vs avg', 'num'], ['Top category', ''], ['Tx', 'num']]) hr.appendChild(el('th', cls, txt));
+    for (const [txt, cls] of [[i18n.t('weekly.colWeek'), ''], [i18n.t('weekly.colSpent'), 'num'], [i18n.t('weekly.colVsAvg'), 'num'], [i18n.t('weekly.colTop'), ''], [i18n.t('weekly.colTx'), 'num']]) hr.appendChild(el('th', cls, txt));
     thead.appendChild(hr); table.appendChild(thead);
     const tb = el('tbody');
     show.slice().reverse().forEach(k => {
@@ -373,7 +375,7 @@ export function mountDashboard(DATA) {
       const n = rows.filter(t => mondayOf(t.d) === k).length;
       const tr = el('tr');
       const partial = !(k >= state.from && addDays(k, 6) <= state.to);
-      tr.appendChild(el('td', null, fmtDayShort(k) + ' – ' + fmtDayShort(addDays(k, 6)) + (partial ? ' (partial)' : '')));
+      tr.appendChild(el('td', null, fmtDayShort(k) + ' – ' + fmtDayShort(addDays(k, 6)) + (partial ? ' ' + i18n.t('weekly.partial') : '')));
       tr.appendChild(el('td', 'num', fmtCZK.format(v)));
       const d = avg ? (v - avg) / avg : 0; tr.appendChild(el('td', 'num ' + (d > 0.05 ? 'neg' : d < -0.05 ? 'pos' : ''), v ? fmtPct(d) : '—'));
       const td = el('td'); if (topCat) { const p = el('span', 'pill'); const dot = el('span', 'dot'); dot.style.background = colorOf(topCat[0]); p.appendChild(dot); p.appendChild(document.createTextNode(topCat[0])); td.appendChild(p); } else td.textContent = '—'; tr.appendChild(td);
@@ -385,17 +387,17 @@ export function mountDashboard(DATA) {
 
   function renderTrend(rowsNoCat) {
     const sel = document.getElementById('trendCat');
-    const options = ['All spending', ...ALL_CATS.filter(c => c !== 'Other'), 'Other', ...(state.invest ? [INVEST] : [])];
+    const options = [ALL_SPENDING, ...ALL_CATS.filter(c => c !== 'Other'), 'Other', ...(state.invest ? [INVEST] : [])];
     if (sel.options.length !== options.length || [...sel.options].some((o, i) => o.value !== options[i])) {
       clear(sel); for (const o of options) { const op = el('option', null, o); op.value = o; sel.appendChild(op); }
     }
-    if (!options.includes(state.trendCat)) state.trendCat = 'All spending';
+    if (!options.includes(state.trendCat)) state.trendCat = ALL_SPENDING;
     sel.value = state.trendCat;
     const months = monthsIn(state.from, state.to);
-    const rows = state.trendCat === 'All spending' ? rowsNoCat : rowsNoCat.filter(t => t.c === state.trendCat);
+    const rows = state.trendCat === ALL_SPENDING ? rowsNoCat : rowsNoCat.filter(t => t.c === state.trendCat);
     const byMonth = sumBy(rows, t => t.d.slice(0, 7));
     const vals = months.map(m => Math.round(byMonth.get(m) || 0));
-    const color = state.trendCat === 'All spending' ? css('--s1') : colorOf(state.trendCat);
+    const color = state.trendCat === ALL_SPENDING ? css('--s1') : colorOf(state.trendCat);
     const avg = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
     const opt = baseOptions();
     opt.interaction = { mode: 'index', intersect: false };
@@ -403,8 +405,8 @@ export function mountDashboard(DATA) {
       const i = c.tooltip.dataPoints[0].dataIndex;
       box.appendChild(el('div', 't', fmtMonth(months[i]) + ' · ' + state.trendCat));
       box.appendChild(el('div', 'total', fmtCZK.format(vals[i])));
-      if (i > 0 && vals[i - 1]) box.appendChild(el('div', 'sub', fmtPct((vals[i] - vals[i - 1]) / vals[i - 1]) + ' vs previous month'));
-      box.appendChild(el('div', 'sub', fmtPct(avg ? (vals[i] - avg) / avg : 0) + ' vs range average ' + fmtCZK.format(avg)));
+      if (i > 0 && vals[i - 1]) box.appendChild(el('div', 'sub', i18n.t('trend.vsPrevMonth', { pct: fmtPct((vals[i] - vals[i - 1]) / vals[i - 1]) })));
+      box.appendChild(el('div', 'sub', i18n.t('trend.vsRangeAvg', { pct: fmtPct(avg ? (vals[i] - avg) / avg : 0), avg: fmtCZK.format(avg) })));
     });
     if (months.length > 36) opt.scales.x.ticks.callback = (v, i) => months[i].endsWith('-01') ? months[i].slice(0, 4) : '';
     upsert('trend', document.getElementById('trend'), {
@@ -412,12 +414,12 @@ export function mountDashboard(DATA) {
       data: { labels: months.map(m => months.length > 18 ? (m.endsWith('-01') ? m.slice(0, 4) : MONTHS[+m.slice(5, 7) - 1].slice(0, 1)) : fmtMonth(m).replace(/ 20/, " '")), datasets: [
         { label: state.trendCat, data: vals, borderColor: color, backgroundColor: withAlpha(color, 0.10), fill: true, borderWidth: 2, tension: 0.25, borderJoinStyle: 'round', borderCapStyle: 'round',
           pointRadius: months.length > 30 ? 0 : 4, pointHoverRadius: 5, pointBackgroundColor: color, pointBorderColor: css('--surface'), pointBorderWidth: 2, pointHitRadius: 16 },
-        { label: 'Average', data: months.map(() => Math.round(avg)), borderColor: css('--axis'), borderWidth: 1.5, pointRadius: 0, pointHitRadius: 0, fill: false }
+        { label: i18n.t('chart.average'), data: months.map(() => Math.round(avg)), borderColor: css('--axis'), borderWidth: 1.5, pointRadius: 0, pointHitRadius: 0, fill: false }
       ] },
       options: opt
     });
     const lg = clear(document.getElementById('trendLegend'));
-    const a = el('span'); const ln = el('span', 'ln'); ln.style.background = css('--axis'); a.appendChild(ln); a.appendChild(document.createTextNode(' Range average ' + fmtCZK.format(avg) + ' per month')); a.style.display = 'inline-flex'; a.style.alignItems = 'center'; a.style.gap = '6px';
+    const a = el('span'); const ln = el('span', 'ln'); ln.style.background = css('--axis'); a.appendChild(ln); a.appendChild(document.createTextNode(' ' + i18n.t('trend.legend', { avg: fmtCZK.format(avg) }))); a.style.display = 'inline-flex'; a.style.alignItems = 'center'; a.style.gap = '6px';
     lg.appendChild(a);
   }
 
@@ -432,10 +434,10 @@ export function mountDashboard(DATA) {
       if (state.sortKey === 'c') return a.c.localeCompare(b.c) * dir || b.d.localeCompare(a.d);
       return a.d.localeCompare(b.d) * dir || b.amt - a.amt;
     });
-    document.getElementById('txHint').textContent = list.length + ' transactions' + (q ? ' matching “' + state.search.trim() + '”' : '') + ' · ' + fmtCZK.format(list.reduce((a, t) => a + t.amt, 0));
+    document.getElementById('txHint').textContent = i18n.tn('tx.count', list.length) + (q ? ' ' + i18n.t('tx.matching', { q: state.search.trim() }) : '') + ' · ' + fmtCZK.format(list.reduce((a, t) => a + t.amt, 0));
     const table = clear(document.getElementById('txTable'));
     const thead = el('thead'); const hr = el('tr');
-    for (const [key, txt, cls] of [['d', 'Date', ''], ['m', 'Merchant', ''], ['c', 'Category', ''], ['s', 'Bank', ''], ['amt', 'Amount', 'num']]) {
+    for (const [key, txt, cls] of [['d', i18n.t('tx.colDate'), ''], ['m', i18n.t('tx.colMerchant'), ''], ['c', i18n.t('tx.colCategory'), ''], ['s', i18n.t('tx.colBank'), ''], ['amt', i18n.t('tx.colAmount'), 'num']]) {
       const th = el('th', (cls + (key === 's' ? '' : ' sortable')).trim(), txt + (state.sortKey === key ? (state.sortDir < 0 ? ' ↓' : ' ↑') : ''));
       if (key !== 's') th.addEventListener('click', () => { if (state.sortKey === key) state.sortDir *= -1; else { state.sortKey = key; state.sortDir = key === 'd' || key === 'amt' ? -1 : 1; } renderTransactions(selected()); });
       hr.appendChild(th);
@@ -450,13 +452,13 @@ export function mountDashboard(DATA) {
       tr.appendChild(el('td', null, t.s));
       const ta = el('td', 'num' + (t.amt < 0 ? ' pos' : ''), (t.amt < 0 ? '+' : '') + fmtCZK2.format(Math.abs(t.amt)));
       if (t.cur !== 'CZK') ta.appendChild(el('span', 'note', Math.abs(t.orig).toFixed(2) + ' ' + t.cur));
-      if (t.amt < 0) ta.title = 'Refund, netted against its category'; tr.appendChild(ta);
+      if (t.amt < 0) ta.title = i18n.t('tx.refund'); tr.appendChild(ta);
       tb.appendChild(tr);
     }
     table.appendChild(tb);
     const more = clear(document.getElementById('moreWrap'));
-    if (!list.length) more.appendChild(el('div', 'empty', 'No transactions match.'));
-    else if (list.length > state.shown) { const b = el('button', 'btn', 'Show ' + Math.min(200, list.length - state.shown) + ' more of ' + list.length); b.addEventListener('click', () => { state.shown += 200; renderTransactions(selected()); }); more.appendChild(b); }
+    if (!list.length) more.appendChild(el('div', 'empty', i18n.t('tx.none')));
+    else if (list.length > state.shown) { const b = el('button', 'btn', i18n.t('tx.showMore', { n: Math.min(200, list.length - state.shown), total: list.length })); b.addEventListener('click', () => { state.shown += 200; renderTransactions(selected()); }); more.appendChild(b); }
     renderTransactions.current = list;
   }
 
@@ -466,25 +468,25 @@ export function mountDashboard(DATA) {
     for (const t of other) { const k = t.m || t.t; const a = agg.get(k) || { n: 0, sum: 0, last: '' }; a.n++; a.sum += t.amt; if (t.d > a.last) a.last = t.d; agg.set(k, a); }
     const list = [...agg.entries()].sort((a, b) => b[1].sum - a[1].sum).slice(0, 20);
     const table = clear(document.getElementById('otherTable'));
-    const thead = el('thead'); const hr = el('tr'); for (const [txt, cls] of [['Merchant / payee', ''], ['Total', 'num'], ['Category', '']]) hr.appendChild(el('th', cls, txt)); thead.appendChild(hr); table.appendChild(thead);
+    const thead = el('thead'); const hr = el('tr'); for (const [txt, cls] of [[i18n.t('other.colMerchant'), ''], [i18n.t('other.colTotal'), 'num'], [i18n.t('other.colCategory'), '']]) hr.appendChild(el('th', cls, txt)); thead.appendChild(hr); table.appendChild(thead);
     const tb = el('tbody');
     const catOptions = ALL_CATS.filter(c => c !== 'Other');
     for (const [k, a] of list) {
-      const tr = el('tr'); const td = el('td'); td.appendChild(el('span', 'm', k)); td.appendChild(el('span', 'note', a.n + (a.n === 1 ? ' transaction' : ' transactions') + ' · last ' + fmtDay(a.last))); tr.appendChild(td);
+      const tr = el('tr'); const td = el('td'); td.appendChild(el('span', 'm', k)); td.appendChild(el('span', 'note', i18n.tn('other.count', a.n, { last: fmtDay(a.last) }))); tr.appendChild(td);
       tr.appendChild(el('td', 'num', fmtCZK.format(a.sum)));
-      const ts = el('td'); const sel = el('select', 'sel'); sel.setAttribute('aria-label', 'Category for ' + k);
-      const o0 = el('option', null, 'Choose…'); o0.value = ''; sel.appendChild(o0);
+      const ts = el('td'); const sel = el('select', 'sel'); sel.setAttribute('aria-label', i18n.t('other.categoryFor', { merchant: k }));
+      const o0 = el('option', null, i18n.t('other.choose')); o0.value = ''; sel.appendChild(o0);
       for (const c of catOptions) { const o = el('option', null, c); o.value = c; sel.appendChild(o); }
       sel.addEventListener('change', () => { if (sel.value) setOverride(k, sel.value); });
       ts.appendChild(sel); tr.appendChild(ts); tb.appendChild(tr);
     }
-    if (!list.length) { const tr = el('tr'); const td = el('td', 'empty', 'Everything in range is categorized.'); td.colSpan = 3; tr.appendChild(td); tb.appendChild(tr); }
+    if (!list.length) { const tr = el('tr'); const td = el('td', 'empty', i18n.t('other.allDone')); td.colSpan = 3; tr.appendChild(td); tb.appendChild(tr); }
     table.appendChild(tb);
     renderOverrides();
     const total = other.reduce((a, t) => a + t.amt, 0);
     const allTotal = rows.reduce((a, t) => a + t.amt, 0);
     const hint = document.querySelector('#otherTable').closest('.card').querySelector('.hint');
-    hint.textContent = (allTotal ? Math.round(total / allTotal * 100) : 0) + ' % of spending in range is “Other”. Pick a category to apply it to every transaction with that merchant. Your choice beats the keyword rules.';
+    hint.textContent = i18n.t('other.hint', { pct: allTotal ? Math.round(total / allTotal * 100) : 0 });
   }
 
   function renderOverrides() {
@@ -492,26 +494,26 @@ export function mountDashboard(DATA) {
     const all = OVR.all();
     const keys = Object.keys(all).sort((a, b) => a.localeCompare(b));
     const nUnsaved = OVR.unsavedCount();
-    const h = el('h3', null, 'Your assignments'); h.appendChild(el('span', 'badge' + (nUnsaved ? '' : ' ok'), nUnsaved ? nUnsaved + ' not exported' : 'exported')); box.appendChild(h);
-    if (!keys.length) box.appendChild(el('div', 'status', 'Nothing assigned yet. Choices made above are remembered in this browser; export them to keep a copy or to use them elsewhere.'));
+    const h = el('h3', null, i18n.t('ovr.title')); h.appendChild(el('span', 'badge' + (nUnsaved ? '' : ' ok'), nUnsaved ? i18n.t('ovr.notExported', { n: nUnsaved }) : i18n.t('ovr.exported'))); box.appendChild(h);
+    if (!keys.length) box.appendChild(el('div', 'status', i18n.t('ovr.none')));
     const ul = el('ul');
     for (const k of keys) {
       const li = el('li'); li.appendChild(el('span', 'k', k));
       const p = el('span', 'pill'); const dot = el('span', 'dot'); dot.style.background = colorOf(all[k]); p.appendChild(dot); p.appendChild(document.createTextNode(all[k])); li.appendChild(p);
-      const x = el('button', 'x', '×'); x.title = 'Remove, back to Other'; x.addEventListener('click', () => setOverride(k, null)); li.appendChild(x);
+      const x = el('button', 'x', '×'); x.title = i18n.t('ovr.remove'); x.addEventListener('click', () => setOverride(k, null)); li.appendChild(x);
       ul.appendChild(li);
     }
     box.appendChild(ul);
     const act = el('div', 'actions');
-    const save = el('button', 'btn', 'Export overrides'); save.disabled = !keys.length && !OVR.savedCount();
+    const save = el('button', 'btn', i18n.t('ovr.export')); save.disabled = !keys.length && !OVR.savedCount();
     save.addEventListener('click', saveOverridesFile); act.appendChild(save);
-    const imp = el('button', 'btn', 'Import overrides');
-    const file = document.createElement('input'); file.type = 'file'; file.accept = '.json,application/json'; file.className = 'srhide'; file.setAttribute('aria-label', 'Import overrides file');
-    const status = el('span', 'status', 'Exported as overrides.json, a plain merchant-to-category map.');
+    const imp = el('button', 'btn', i18n.t('ovr.import'));
+    const file = document.createElement('input'); file.type = 'file'; file.accept = '.json,application/json'; file.className = 'srhide'; file.setAttribute('aria-label', i18n.t('ovr.importLabel'));
+    const status = el('span', 'status', i18n.t('ovr.status'));
     file.addEventListener('change', async () => {
       const f = file.files && file.files[0]; if (!f) return;
-      try { const r = OVR.merge(JSON.parse(await f.text())); OVR.markSaved(); applyOverridesNow(); renderAll(); status.textContent = 'Imported ' + r.added + ' assignments' + (r.ignored ? ', ' + r.ignored + ' ignored' : '') + '.'; }
-      catch (e) { status.textContent = 'Could not import: ' + (e && e.message ? e.message : e); }
+      try { const r = OVR.merge(JSON.parse(await f.text())); OVR.markSaved(); applyOverridesNow(); renderAll(); status.textContent = r.ignored ? i18n.t('ovr.importedIgnored', { added: r.added, ignored: r.ignored }) : i18n.t('ovr.imported', { added: r.added }); }
+      catch (e) { status.textContent = i18n.t('ovr.importFailed', { error: e && e.message ? e.message : e }); }
       file.value = '';
     });
     imp.addEventListener('click', () => file.click()); act.appendChild(imp); act.appendChild(file);
@@ -535,11 +537,11 @@ export function mountDashboard(DATA) {
   function renderFooter() {
     const f = clear(document.getElementById('footer'));
     const meta = DATA.meta || {};
-    f.appendChild(el('div', null, 'Data from ' + (meta.sources || []).length + ' imported statement file' + ((meta.sources || []).length === 1 ? '' : 's') + (meta.generated ? ', last import ' + String(meta.generated).replace('T', ' ').slice(0, 16) : '') + '. Transfers between your own accounts and incoming money are excluded. Refunds are netted against their category. Foreign currency converted at fixed rates: ' + Object.entries(DATA.fx || {}).filter(([k]) => k !== 'CZK').map(([k, v]) => '1 ' + k + ' = ' + v + ' CZK').join(', ') + '.'));
+    f.appendChild(el('div', null, i18n.tn('footer.data', (meta.sources || []).length) + (meta.generated ? i18n.t('footer.lastImport', { at: String(meta.generated).replace('T', ' ').slice(0, 16) }) : '') + i18n.t('footer.rules', { rates: Object.entries(DATA.fx || {}).filter(([k]) => k !== 'CZK').map(([k, v]) => '1 ' + k + ' = ' + v + ' CZK').join(', ') })));
     const ul = el('ul');
     for (const s of meta.sources || []) {
-      const li = el('li'); li.appendChild(document.createTextNode(s.bank + ' · ' + s.file + ' · ' + s.rows + ' rows'));
-      if (s.bank === 'Airbank') { const ok = s.debits_match; const sp = el('span', ok ? 'ok' : 'warn', ok ? ' · debit total matches the statement ✓' : ' · debit total does NOT match the statement (' + s.statement_debits + ' vs ' + s.parsed_debits + ')'); li.appendChild(sp); if (s.unparsed_blocks) li.appendChild(el('span', 'warn', ' · ' + s.unparsed_blocks + ' unparsed blocks')); }
+      const li = el('li'); li.appendChild(document.createTextNode(i18n.t('footer.rows', { bank: s.bank, file: s.file, rows: s.rows })));
+      if (s.bank === 'Airbank') { const ok = s.debits_match; const sp = el('span', ok ? 'ok' : 'warn', ok ? i18n.t('footer.debitsOk') : i18n.t('footer.debitsBad', { printed: s.statement_debits, parsed: s.parsed_debits })); li.appendChild(sp); if (s.unparsed_blocks) li.appendChild(el('span', 'warn', i18n.t('footer.unparsed', { n: s.unparsed_blocks }))); }
       ul.appendChild(li);
     }
     f.appendChild(ul);
@@ -566,7 +568,7 @@ export function mountDashboard(DATA) {
     renderTransactions(rows);
     renderOther(rowsNoCat);
     const sub = document.getElementById('subtitle');
-    sub.textContent = fmtDay(state.from) + ' – ' + fmtDay(state.to) + ' · ' + [...state.banks].join(', ') + (state.invest ? ' · investments included' : '') + (state.oneoff ? ' · one-offs over ' + fmtCZK.format(state.oneoffCap) + ' hidden' : '') + ' · data through ' + fmtDay(MAX_DATE);
+    sub.textContent = fmtDay(state.from) + ' – ' + fmtDay(state.to) + ' · ' + [...state.banks].join(', ') + (state.invest ? ' · ' + i18n.t('sub.investIncluded') : '') + (state.oneoff ? ' · ' + i18n.t('sub.oneoffsHidden', { amount: fmtCZK.format(state.oneoffCap) }) : '') + ' · ' + i18n.t('sub.dataThrough', { date: fmtDay(MAX_DATE) });
   }
 
   // events (bound with an abort signal so mountDashboard can be called again on new data)
