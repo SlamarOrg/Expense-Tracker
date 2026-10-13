@@ -108,7 +108,7 @@ test('forget my data empties the store, survives a reload, and keeps the theme',
     await page.goto(base + '?theme=dark');
     await checkPage(page);
     await page.eval('document.querySelector("#emptyActions .btn:not(.primary)").click()'); // "Try with sample data"
-    await page.waitFor('/47 new transactions/.test(document.getElementById("importPanel").textContent)');
+    await page.waitFor('/360 new transactions/.test(document.getElementById("importPanel").textContent)'); // demo year 313 + fixtures 47
     assert.equal(await page.eval('document.body.dataset.empty || ""'), '');
 
     await page.eval('window.confirm = () => true; document.getElementById("settingsBtn").click()');

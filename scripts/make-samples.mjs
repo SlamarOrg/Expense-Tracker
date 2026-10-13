@@ -180,10 +180,77 @@ export function airbankSample() {
   return writePdf(pages);
 }
 
+// ---------------------------------------------------------------------------------------------
+// Demo year: twelve months of everyday FIO spending (March 2023 to February 2024), so the demo
+// and the README screenshot show a real year instead of the small test fixtures alone. Not used
+// by the parser tests, which keep their hand-written fixtures. Deterministic: seeded PRNG.
+// Merchants are chosen to match rules/default-cz.json, so almost nothing lands in "Other".
+// ---------------------------------------------------------------------------------------------
+function mulberry32(seed) {
+  return () => {
+    seed |= 0; seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+export function demoYearSample() {
+  const rnd = mulberry32(20240229);
+  const pick = (arr) => arr[Math.floor(rnd() * arr.length)];
+  const amount = (lo, hi) => Math.round((lo + rnd() * (hi - lo)) * 10) / 10;
+  const cz = (n) => String(n).replace('.', ',');
+  const dmy = (d) => `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
+  const short = (d) => `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()}`;
+  const rows = [];
+  const card = (d, merchant, city, amt, cur = 'CZK', prefix = 'Nákup') => {
+    const booked = new Date(d); booked.setDate(booked.getDate() + 1);
+    const msg = `${prefix}: ${merchant}, ${city}, CZ, dne ${short(d)}, částka  ${amt.toFixed(2)} ${cur}`;
+    const czk = cur === 'EUR' ? Math.round(amt * 25.1 * 10) / 10 : amt;
+    rows.push([dmy(booked), cz(-czk), 'CZK', '', '', msg, msg, 'Karetní transakce']);
+  };
+  const transfer = (d, amt, counter, bank, msg, note = '', type = 'Bezhotovostní platba') => rows.push([dmy(d), cz(amt), 'CZK', counter, bank, msg, note, type]);
+
+  for (let m = 0; m < 12; m++) {
+    const year = 2023 + Math.floor((2 + m) / 12);
+    const month = (2 + m) % 12; // March 2023 .. February 2024
+    const day = (n) => new Date(year, month, n);
+    const days = new Date(year, month + 1, 0).getDate();
+    transfer(day(1), -12500, ACCT.landlord, '0100', '', '');
+    transfer(day(15), 45000, ACCT.employer, '0100', `MZDA ${String(month + 1).padStart(2, '0')}/${year}`, '', 'Bezhotovostní příjem');
+    transfer(day(20), -Math.round(amount(1400, 2600)), `000${ACCT.utility}`, '0800', `Záloha ${month + 1}/${year}`, 'Elektřina');
+    if (month % 3 === 0) transfer(day(10), -650, ACCT.insurer, '0300', 'Pojistka čtvrtletí', '');
+    transfer(day(16), -5000, ACCT.fioSavings, '2010', 'Převod na spořicí účet', '', 'Platba převodem uvnitř banky');
+    transfer(day(17), -3000, ACCT.broker, '2010', 'PORTU investice', '');
+    card(day(3), 'SPOTIFY AB', 'STOCKHOLM', 9.99, 'EUR');
+    card(day(5), 'NETFLIX.COM', 'AMSTERDAM', 259);
+    for (let d = 2; d <= days; d += 3 + Math.floor(rnd() * 2)) card(day(d), pick(['BILLA 123', 'LIDL 456', 'ALBERT 789', 'KAUFLAND 12', 'ROHLIK.CZ']), pick(['BRNO', 'PRAHA']), amount(180, 1450));
+    for (let d = 4; d <= days; d += 6 + Math.floor(rnd() * 4)) card(day(d), pick(['PIZZERIA NAPOLI', 'BISTRO U PARKU', 'KAVARNA SLUNCE', 'MCDONALDS 33', 'RESTAURACE POD LIPOU']), pick(['BRNO', 'PRAHA']), amount(120, 950));
+    card(day(7), pick(['SHELL 1234', 'OMV 77', 'ORLEN 5']), 'BRNO', amount(900, 1700));
+    card(day(22), pick(['SHELL 1234', 'OMV 77', 'ORLEN 5']), 'BRNO', amount(900, 1700));
+    if (rnd() < 0.6) card(day(11), 'CD.CZ', 'PRAHA', amount(180, 640));
+    if (rnd() < 0.5) card(day(25), 'BOLT.EU', 'TALLINN', amount(120, 380));
+    if (rnd() < 0.7) card(day(13), pick(['ALZA.CZ', 'DECATHLON BRNO', 'H&M 210', 'NOTINO.CZ']), 'BRNO', amount(350, 3600));
+    if (rnd() < 0.4) card(day(19), pick(['CINEMA CITY', 'STEAM PURCHASE']), pick(['BRNO', 'SEATTLE']), amount(190, 1100));
+    if (rnd() < 0.35) card(day(9), 'DR.MAX LEKARNA', 'BRNO', amount(90, 650));
+    const cash = Math.round(amount(1, 3)) * 1000;
+    rows.push([dmy(day(26)), cz(-cash), 'CZK', '', '',
+      `Výběr z bankomatu: ATM CS A.S., BRNO, CZ, dne ${short(day(25))}, částka  ${cash.toFixed(2)} CZK`, '', 'Karetní transakce']);
+    if (month === 6) { card(day(8), 'BOOKING.COM', 'AMSTERDAM', 9800); card(day(9), 'RYANAIR', 'DUBLIN', 128, 'EUR'); }
+    if (month === 11) card(day(18), 'ALZA.CZ', 'PRAHA', 7490);
+  }
+  rows.sort((a, b) => a[0].split('.').reverse().join('').localeCompare(b[0].split('.').reverse().join('')));
+  const header = ['Zdrojový účet', 'Datum', 'Objem', 'Měna', 'Protiúčet', 'Kód banky', 'Zpráva pro příjemce', 'Poznámka', 'Typ'];
+  const lines = [header.map(q).join(';')];
+  for (const r of rows) lines.push([ACCT.fioMain, ...r].map(q).join(';'));
+  return '\ufeff' + lines.join('\r\n') + '\r\n';
+}
+
 if (process.argv[1] && /make-samples\.mjs$/.test(process.argv[1].replace(/\\/g, '/'))) {
   await mkdir(OUT, { recursive: true });
   await writeFile(new URL('fio-sample.csv', OUT), fioSample(), 'utf8');
   await writeFile(new URL('revolut-sample.csv', OUT), revolutSample(), 'utf8');
   await writeFile(new URL('airbank-sample.pdf', OUT), airbankSample());
-  console.log('wrote samples/fio-sample.csv, samples/revolut-sample.csv, samples/airbank-sample.pdf');
+  await writeFile(new URL('demo-fio-year.csv', OUT), demoYearSample(), 'utf8');
+  console.log('wrote samples/fio-sample.csv, samples/revolut-sample.csv, samples/airbank-sample.pdf, samples/demo-fio-year.csv');
 }

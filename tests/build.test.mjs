@@ -74,6 +74,10 @@ for (const browser of BROWSERS) {
       assert.equal(after.errors, '');
       assert.equal(after.empty, false, 'IndexedDB persists on file://');
       assert.deepEqual(page.exceptions, []);
+      // the privacy promise: nothing but the page itself and in-memory blob/data URLs is ever requested
+      const external = page.requests.filter((u) => !u.startsWith('blob:') && !u.startsWith('data:') && u.split('?')[0] !== pathToFileURL(file).href);
+      assert.deepEqual(external, [], 'no network requests');
+      assert.ok(page.requests.length > 0, 'request logging works');
     } finally {
       await b.close();
       rmSync(dir, { recursive: true, force: true });

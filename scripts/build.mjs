@@ -17,7 +17,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const read = (rel) => readFileSync(resolve(ROOT, rel), 'utf8');
-const SAMPLE_NAMES = ['fio-sample.csv', 'revolut-sample.csv', 'airbank-sample.pdf'];
+const SAMPLE_NAMES = ['demo-fio-year.csv', 'fio-sample.csv', 'revolut-sample.csv', 'airbank-sample.pdf'];
 
 // ------------------------------------------------------------------------------- replacements
 const REPLACED = {

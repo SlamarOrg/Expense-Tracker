@@ -1,7 +1,7 @@
 // Where "Try with sample data" gets its files. Development version: fetched next to the page.
 // The release bundle replaces this module with one that decodes embedded copies.
 
-export const SAMPLE_FILES = ['fio-sample.csv', 'revolut-sample.csv', 'airbank-sample.pdf'];
+export const SAMPLE_FILES = ['demo-fio-year.csv', 'fio-sample.csv', 'revolut-sample.csv', 'airbank-sample.pdf'];
 
 export async function getSampleFiles() {
   return Promise.all(SAMPLE_FILES.map(async (name) => {

@@ -60,6 +60,8 @@ class Page {
     this.s = session;
     this.console = [];
     this.exceptions = [];
+    this.requests = [];
+    session.on('Network.requestWillBeSent', (p) => this.requests.push(p.request.url));
     session.on('Runtime.consoleAPICalled', (p) => this.console.push(p.args.map((a) => a.value ?? a.description ?? '').join(' ')));
     session.on('Runtime.exceptionThrown', (p) => this.exceptions.push((p.exceptionDetails.exception && p.exceptionDetails.exception.description) || p.exceptionDetails.text));
   }
@@ -68,6 +70,7 @@ class Page {
     await this.s.send('Page.enable');
     await this.s.send('Runtime.enable');
     await this.s.send('DOM.enable');
+    await this.s.send('Network.enable');
     await this.s.send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
   }
 

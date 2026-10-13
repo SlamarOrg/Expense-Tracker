@@ -116,7 +116,7 @@ T21 ── T22 bundler ── T23 CI + Pages + CONTRIBUTING ── T24 README �
 ### Phase 6: Release
 - [x] T22 Bundler
 - [x] T23 CI, Pages workflow, CONTRIBUTING
-- [ ] T24 README, samples README, screenshot
+- [x] T24 README, samples README, screenshot
 - [ ] T25 Martin's migration and final checks
 
 ### Checkpoint E: Success criteria
