@@ -1,3 +1,5 @@
 * text=auto eol=lf
 *.pdf binary
 *.png binary
+# statement samples keep their exact bytes: real FIO exports use CRLF and a BOM
+samples/*.csv -text
