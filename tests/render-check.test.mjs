@@ -1,7 +1,8 @@
 // Browser-level tests over the DevTools Protocol. Skipped when no Chrome or Edge is installed.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { serve } from '../scripts/serve.mjs';
 import { findBrowser, renderCheck, inspectDom, checkPage } from '../scripts/render-check.mjs';
 import { launch } from '../scripts/cdp.mjs';
@@ -14,6 +15,16 @@ const skip = !browser && 'no headless browser available';
 test('inspectDom reads the readiness flag, the empty flag and the error log', () => {
   assert.deepEqual(inspectDom('<body data-ready="1"><div id="errlog" aria-hidden="true"></div>'), { ready: '1', errors: '', empty: false });
   assert.deepEqual(inspectDom('<body data-empty="1"><div id="errlog">ERROR: x\n</div>'), { ready: null, errors: 'ERROR: x', empty: true });
+});
+
+test('regression: a browser that does not start in time is killed, so the test process can exit', { skip }, () => {
+  // Before the fix the browser kept running after the start timeout, and CI hung on the test file.
+  const cdp = pathToFileURL(fileURLToPath(new URL('../scripts/cdp.mjs', import.meta.url))).href;
+  const script = `import { launch } from ${JSON.stringify(cdp)};
+    await launch({ browser: ${JSON.stringify(browser)}, timeout: 1 }).catch((e) => console.log(e.message));`;
+  const r = spawnSync(process.execPath, ['--input-type=module', '-e', script], { encoding: 'utf8', timeout: 20000 });
+  assert.equal(r.error, undefined, 'the process exited on its own');
+  assert.match(r.stdout, /browser did not start/);
 });
 
 test('demo mode renders the samples without errors in light and dark; a fresh profile shows the empty state', { skip }, async () => {

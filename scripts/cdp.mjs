@@ -140,7 +140,12 @@ class Page {
   }
 }
 
-export async function launch({ browser, timeout = 15000 } = {}) {
+/**
+ * A cold browser start on a CI runner takes 10-16 s, so the default start timeout is generous.
+ * If the start fails, the browser process is killed before the error is thrown: a leftover child
+ * process keeps Node's event loop alive, and the whole test file then hangs until its timeout.
+ */
+export async function launch({ browser, timeout = 60000 } = {}) {
   if (!browser) throw new Error('no browser given');
   if (typeof WebSocket === 'undefined') throw new Error('global WebSocket missing: Node 22 or newer is required');
   const profile = mkdtempSync(join(tmpdir(), 'bsd-cdp-'));
@@ -148,26 +153,40 @@ export async function launch({ browser, timeout = 15000 } = {}) {
     '--headless=new', '--disable-gpu', '--no-sandbox', '--no-first-run', '--no-default-browser-check', '--hide-scrollbars',
     '--remote-debugging-port=0', `--user-data-dir=${profile}`, 'about:blank',
   ], { stdio: 'ignore' });
-  const portFile = await waitForFile(join(profile, 'DevToolsActivePort'), timeout);
-  const port = Number(portFile.split('\n')[0]);
-  const base = `http://127.0.0.1:${port}`;
+  proc.on('error', () => {}); // a spawn failure surfaces as the missing DevToolsActivePort below
+
+  async function close() {
+    proc.kill();
+    await new Promise((r) => { if (proc.exitCode !== null || proc.signalCode !== null) r(); else proc.once('exit', r); setTimeout(r, 3000); });
+    for (let i = 0; i < 10; i++) {
+      try { rmSync(profile, { recursive: true, force: true }); break; } catch { await sleep(200); }
+    }
+  }
+
+  let base;
+  try {
+    const portFile = await waitForFile(join(profile, 'DevToolsActivePort'), timeout);
+    base = `http://127.0.0.1:${Number(portFile.split('\n')[0])}`;
+  } catch (err) {
+    await close();
+    throw err;
+  }
 
   return {
     async newPage(opts) {
-      const target = await (await fetch(`${base}/json/new?about:blank`, { method: 'PUT' })).json();
+      const res = await fetch(`${base}/json/new?about:blank`, { method: 'PUT', signal: AbortSignal.timeout(30000) });
+      const target = await res.json();
       const ws = new WebSocket(target.webSocketDebuggerUrl);
-      await new Promise((resolve, reject) => { ws.addEventListener('open', resolve); ws.addEventListener('error', reject); });
+      await new Promise((resolve, reject) => {
+        const timer = setTimeout(() => { ws.close(); reject(new Error('CDP WebSocket did not open within 30000 ms')); }, 30000);
+        ws.addEventListener('open', () => { clearTimeout(timer); resolve(); });
+        ws.addEventListener('error', (e) => { clearTimeout(timer); reject(e); });
+      });
       const page = new Page(new Session(ws));
       await page.init(opts);
       page.close = () => ws.close();
       return page;
     },
-    async close() {
-      proc.kill();
-      await new Promise((r) => { if (proc.exitCode !== null) r(); else proc.once('exit', r); setTimeout(r, 3000); });
-      for (let i = 0; i < 10; i++) {
-        try { rmSync(profile, { recursive: true, force: true }); break; } catch { await sleep(200); }
-      }
-    },
+    close,
   };
 }

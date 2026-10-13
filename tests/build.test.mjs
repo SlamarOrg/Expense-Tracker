@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -9,8 +9,10 @@ import { checkPage } from '../scripts/render-check.mjs';
 import { launch } from '../scripts/cdp.mjs';
 
 const SAMPLES = ['fio-sample.csv', 'revolut-sample.csv', 'airbank-sample.pdf'].map((f) => fileURLToPath(new URL(`../samples/${f}`, import.meta.url)));
-const BROWSERS = ['C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
-  '/usr/bin/google-chrome', '/usr/bin/google-chrome-stable', '/usr/bin/chromium', process.env.BROWSER].filter((p) => p && existsSync(p));
+// Deduplicated by real path: on Linux google-chrome and google-chrome-stable link to the same binary.
+const BROWSERS = [...new Map(['C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
+  '/usr/bin/google-chrome', '/usr/bin/google-chrome-stable', '/usr/bin/chromium', process.env.BROWSER]
+  .filter((p) => p && existsSync(p)).map((p) => [realpathSync(p), p])).values()];
 
 test('transformModule rewrites every import and export form the sources use', () => {
   const src = [
