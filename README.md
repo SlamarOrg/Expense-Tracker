@@ -4,6 +4,10 @@ An offline spending dashboard for your bank statement exports. Drop the files on
 see where your money goes: by month, by category, by week, with a searchable transaction list.
 Everything runs in your browser. There is no server, no account and no bank login.
 
+**[Try the demo](https://slamartin.github.io/ExpenseTracker/)** with made-up data, or open
+**[the dashboard](https://slamartin.github.io/ExpenseTracker/dashboard.html)** and save it to use
+offline.
+
 ![The dashboard with fake sample data](docs/screenshot.png)
 
 Czech banks come first: **FIO banka**, **Air Bank** and **Revolut** (Czech or English export).
@@ -21,8 +25,9 @@ The interface is in English and Czech. Parsers for other banks are welcome, see
 
 ## Use it
 
-1. Get the dashboard, a single file named `dashboard.html`. Download it from this repository's
-   GitHub Pages site, or build it yourself (see Development below).
+1. Get the dashboard, a single file named `dashboard.html`. Save it from
+   [the project site](https://slamartin.github.io/ExpenseTracker/dashboard.html), or build it
+   yourself (see Development below).
 2. Open it in a current browser; double-clicking the file is enough. It is tested in Chrome and
    Edge.
 3. Export your statements from internet banking (see below) and drop them onto the page, or click
@@ -32,8 +37,8 @@ The interface is in English and Czech. Parsers for other banks are welcome, see
    is then not counted as spending. Add the accounts of brokers or savings products as
    investment accounts, and the accounts you pay rent or utilities to as category accounts.
 
-The demo on the GitHub Pages site runs the same dashboard on made-up data, and nothing you
-import there is saved.
+[The demo](https://slamartin.github.io/ExpenseTracker/) runs the same dashboard on made-up data,
+and nothing you import there is saved.
 
 ## Supported banks
 
