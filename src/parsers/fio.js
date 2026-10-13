@@ -8,6 +8,7 @@
 // (FIO prints "DEKUJEME, ROHLIK.CZ" and the merchant cut at the first comma is useless).
 
 import { readCsv } from './csv.js';
+import { numberRepeats } from './ids.js';
 import { isoDate, norm, parseCzNumber } from '../classifier/normalize.js';
 
 const CARD_RE = /^(Nákup|Výběr z bankomatu|Kredit|Platba kartou):\s*(.*?),(.*?)(?:,\s*dne\s+(\d{1,2}\.\d{1,2}\.\d{4}))?(?:,\s*částka\s+([\d.]+)\s+([A-Z]{3}))?\s*$/;
@@ -66,8 +67,9 @@ export function parseFio(text) {
       text: [merchant, msg, note, type].join(' '),
       raw: msg,
       hints,
-      id: `FIO|${acct}|${booked}|${amount}|${msg}|${note}`,
+      // no transaction id in the export: content key, repeats numbered by numberRepeats()
+      id: `FIO|${acct}|${booked}|${amount}|${currency}|${type}|${counter}/${bankCode}|${msg}|${note}`,
     });
   }
-  return out;
+  return numberRepeats(out);
 }

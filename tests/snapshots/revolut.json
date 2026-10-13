@@ -12,7 +12,7 @@
     "c": "Transfers",
     "c0": "Transfers",
     "cp": "",
-    "id": "REV|2024-03-01 10:00:00|Dobití Apple Pay kartou *1234|1000|EUR"
+    "id": "REV|2024-03-01 10:00:00|Dobíjení|Dobití Apple Pay kartou *1234|1000|EUR#1"
   },
   {
     "d": "2024-03-02",
@@ -27,7 +27,7 @@
     "c": "Skipped",
     "c0": "Skipped",
     "cp": "",
-    "id": "REV|2024-03-02 09:00:00|Exchanged to USD|-200|EUR"
+    "id": "REV|2024-03-02 09:00:00|Směna|Exchanged to USD|-200|EUR#1"
   },
   {
     "d": "2024-03-02",
@@ -42,7 +42,7 @@
     "c": "Skipped",
     "c0": "Skipped",
     "cp": "",
-    "id": "REV|2024-03-02 09:00:00|Exchanged from EUR|216|USD"
+    "id": "REV|2024-03-02 09:00:00|Směna|Exchanged from EUR|216|USD#1"
   },
   {
     "d": "2024-03-03",
@@ -57,7 +57,7 @@
     "c": "Other",
     "c0": "Other",
     "cp": "",
-    "id": "REV|2024-03-03 08:36:06|Record Go|-379.44|EUR"
+    "id": "REV|2024-03-03 08:36:06|Platba kartou|Record Go|-379.44|EUR#1"
   },
   {
     "d": "2024-03-05",
@@ -72,7 +72,7 @@
     "c": "Transport",
     "c0": "Transport",
     "cp": "",
-    "id": "REV|2024-03-05 18:20:00|Shell Wien|-40|EUR"
+    "id": "REV|2024-03-05 18:20:00|Platba kartou|Shell Wien|-40|EUR#1"
   },
   {
     "d": "2024-03-06",
@@ -87,7 +87,7 @@
     "c": "Transfers",
     "c0": "Transfers",
     "cp": "",
-    "id": "REV|2024-03-06 12:00:00|Revolut Transfer to savings|-20|EUR"
+    "id": "REV|2024-03-06 12:00:00|Platba kartou|Revolut Transfer to savings|-20|EUR#1"
   },
   {
     "d": "2024-03-10",
@@ -102,7 +102,7 @@
     "c": "Other",
     "c0": "Other",
     "cp": "",
-    "id": "REV|2024-03-10 08:48:55|Custody fees|-0.05|USD"
+    "id": "REV|2024-03-10 08:48:55|Poplatek|Custody fees|-0.05|USD#1"
   },
   {
     "d": "2024-03-12",
@@ -117,7 +117,7 @@
     "c": "Skipped",
     "c0": "Skipped",
     "cp": "",
-    "id": "REV|2024-03-12 03:08:36|Poplatek za plán Premium|0|EUR"
+    "id": "REV|2024-03-12 03:08:36|Účtovat|Poplatek za plán Premium|0|EUR#1"
   },
   {
     "d": "2024-03-14",
@@ -132,7 +132,7 @@
     "c": "Other",
     "c0": "Other",
     "cp": "",
-    "id": "REV|2024-03-14 16:44:19|Reversal of custody fee duplication|0.05|USD"
+    "id": "REV|2024-03-14 16:44:19|FEE_REVERSAL|Reversal of custody fee duplication|0.05|USD#1"
   },
   {
     "d": "2024-03-15",
@@ -147,7 +147,7 @@
     "c": "Investments",
     "c0": "Investments",
     "cp": "",
-    "id": "REV|2024-03-15 23:18:31|Investing money|-150|USD"
+    "id": "REV|2024-03-15 23:18:31|TRADE|Investing money|-150|USD#1"
   },
   {
     "d": "2024-03-20",
@@ -162,7 +162,7 @@
     "c": "Income",
     "c0": "Income",
     "cp": "",
-    "id": "REV|2024-03-20 23:18:31|Sold AAPL|60|USD"
+    "id": "REV|2024-03-20 23:18:31|TRADE|Sold AAPL|60|USD#1"
   },
   {
     "d": "2024-03-21",
@@ -177,7 +177,7 @@
     "c": "Investments",
     "c0": "Investments",
     "cp": "",
-    "id": "REV|2024-03-21 09:17:19|To DEGIRO|-100|EUR"
+    "id": "REV|2024-03-21 09:17:19|Převod|To DEGIRO|-100|EUR#1"
   },
   {
     "d": "2024-03-22",
@@ -192,7 +192,7 @@
     "c": "Transfers",
     "c0": "Transfers",
     "cp": "",
-    "id": "REV|2024-03-22 09:17:19|To Jana Nováková|-50|EUR"
+    "id": "REV|2024-03-22 09:17:19|Převod|To Jana Nováková|-50|EUR#1"
   },
   {
     "d": "2024-03-23",
@@ -207,7 +207,7 @@
     "c": "Income",
     "c0": "Income",
     "cp": "",
-    "id": "REV|2024-03-23 09:17:19|From Petr Novák|30|EUR"
+    "id": "REV|2024-03-23 09:17:19|Převod|From Petr Novák|30|EUR#1"
   },
   {
     "d": "2024-03-25",
@@ -222,6 +222,6 @@
     "c": "Income",
     "c0": "Income",
     "cp": "",
-    "id": "REV|2024-03-25 00:00:00|Cashback March|1.5|EUR"
+    "id": "REV|2024-03-25 00:00:00|Cashback|Cashback March|1.5|EUR#1"
   }
 ]

@@ -113,3 +113,16 @@ test('duplicate note equal to the message is dropped', () => {
 test('snapshot of all classified rows', () => {
   checkSnapshot('fio', txs);
 });
+
+test('identical rows inside one export are separate transactions, re-importing the file still dedupes', async () => {
+  const { dedupe } = await import('../src/parsers/index.js');
+  const header = '"Zdrojový účet";"Datum";"Objem";"Měna";"Protiúčet";"Kód banky";"Zpráva pro příjemce";"Poznámka";"Typ"';
+  const ticket = '"2900000001";"05.03.2024";"-15";"CZK";"";"";"Nákup: DPMB, BRNO, CZ, dne 4.3.2024, částka  15.00 CZK";"Nákup: DPMB, BRNO, CZ, dne 4.3.2024, částka  15.00 CZK";"Karetní transakce"';
+  const fee = '"2900000001";"05.03.2024";"-15";"CZK";"";"";"Nákup: DPMB, BRNO, CZ, dne 4.3.2024, částka  15.00 CZK";"Nákup: DPMB, BRNO, CZ, dne 4.3.2024, částka  15.00 CZK";"Poplatek - platební karta"';
+  const csv = '﻿' + [header, ticket, ticket, ticket, fee].join('\r\n') + '\r\n';
+  const rows = parseFio(csv);
+  assert.equal(new Set(rows.map((r) => r.id)).size, 4, 'three identical tickets and a fee with the same text are four transactions');
+  const again = parseFio(csv);
+  assert.deepEqual(again.map((r) => r.id), rows.map((r) => r.id), 'ids are stable across parses');
+  assert.equal(dedupe([...rows, ...again]).rows.length, 4, 'importing the same file twice adds nothing');
+});

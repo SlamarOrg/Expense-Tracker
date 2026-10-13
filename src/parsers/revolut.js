@@ -4,6 +4,7 @@
 // trades are investments (buy) or income (sell), transfers to a broker are investments.
 
 import { readCsv } from './csv.js';
+import { numberRepeats } from './ids.js';
 import { norm } from '../classifier/normalize.js';
 
 const COMPLETED = new Set(['DOKONČENO', 'DOKONCENO', 'COMPLETED']);
@@ -62,8 +63,8 @@ export function parseRevolut(text) {
       text: desc,
       raw: '',
       hints,
-      id: `REV|${started}|${desc}|${amount}|${currency}`,
+      id: `REV|${started}|${type}|${desc}|${amount}|${currency}`,
     });
   }
-  return out;
+  return numberRepeats(out);
 }
