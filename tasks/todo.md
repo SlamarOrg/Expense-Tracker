@@ -98,13 +98,13 @@ chains and services, drop local businesses and location hints, empty all account
 Martin's OK.
 
 **Acceptance criteria:**
-- [ ] `default-cz.json` validates with `Rules.from()`; `own_accounts`, `investment_accounts`, `category_accounts` are empty
-- [ ] No keyword from the dropped list appears in the file; no account number appears anywhere
-- [ ] Martin has reviewed `tasks/rules-review.md` and approved
+- [x] `default-cz.json` validates with `Rules.from()`; `own_accounts`, `investment_accounts`, `category_accounts` are empty
+- [x] No keyword from the dropped list appears in the file; no account number appears anywhere (the ASCII forms `jidlo` and `obed` stay; only their diacritic duplicates were dropped)
+- [x] Martin has reviewed `tasks/rules-review.md` and approved
 
 **Verification:**
-- [ ] `node --test tests/rules-default.test.mjs` loads the file and asserts the empty account lists and at least 10 categories
-- [ ] Denylist test passes
+- [x] `node --test tests/rules-default.test.mjs` loads the file and asserts the empty account lists and at least 10 categories
+- [x] Denylist test passes
 
 **Dependencies:** T4; ask-first gate (Martin reviews the dropped list)
 **Files:** `rules/default-cz.json`, `tasks/rules-review.md`, `tests/rules-default.test.mjs`

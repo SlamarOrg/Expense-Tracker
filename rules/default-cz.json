@@ -1,0 +1,105 @@
+{
+  "_help": [
+    "Starter classification rules for Czech bank statements. Edit in the dashboard settings or in this file.",
+    "Matching is case-insensitive and ignores diacritics. A keyword matches if it appears anywhere in the",
+    "merchant name, message or note of a transaction. A keyword that ends with a space only matches a whole",
+    "word, so 'stk ' does not match 'castka'. Rules are checked in the order listed and the first match wins,",
+    "so put specific keywords before generic ones.",
+    "Classification order: own-account transfers -> income -> investments -> categories -> Other."
+  ],
+  "fx_rates_to_czk": {
+    "_help": "Fixed rates used to convert foreign currency rows. Add any currency that appears in your statements.",
+    "CZK": 1.0,
+    "EUR": 25.0,
+    "USD": 23.0
+  },
+  "own_accounts": {
+    "_help": "Your own account numbers (with or without /bank code). Transfers to and from them are not spending. Example: \"FIO main\": \"2900000001/2010\"."
+  },
+  "transfer_keywords": ["transfer to revolut", "revolut", "dobiti", "smeneno na"],
+  "investment_accounts": {
+    "_help": "Accounts of brokers, bond issuers and savings products. Payments to them count as investments. Example: \"Portu\": \"3000000001/2010\"."
+  },
+  "investment_keywords": [
+    "portu", "xtb", "degiro", "trading 212", "etoro", "binance", "coinbase", "coinmate", "zonky",
+    "investi", "upis", "dluhopis", "cz0001", "cenneho papiru", "cennych papiru", "krypto", "zlato", "mincovna", "itrade"
+  ],
+  "categories": {
+    "Subscriptions": [
+      "netflix", "apple.com/bill", "spotify", "o2 vyuctovani", "o2 czech", "gopay * o2", "google *disney", "disney", "hbo",
+      "youtube", "patreon", "1password", "icedrive", "anthropic", "openai", "chatgpt", "microsoft", "adobe", "dropbox",
+      "nordvpn", "vodafone", "t-mobile", "headway"
+    ],
+    "Cash withdrawals": ["vyber z bankomatu", "bankomat", "atm ", "cashout"],
+    "Fees": [
+      "poplatek za pojisteni", "pojisteni platebni karty", "sms upozorneni", "custody fee", "odvod dane",
+      "poplatek za vedeni", "poplatek za kartu", "doruceni pin", "poplatek za plan"
+    ],
+    "Housing & utilities": [
+      "poplatek za byt", "elektrina", "najem", "najemne", "vodarna", "vodarny", "innogy", "cez ", "e.on",
+      "instalater", "kuchyn", "koupelna", "obklad", "dlazba", "nabytek",
+      "bauhaus", "hornbach", "ikea", "obi ", "uni hobby", "mountfield", "fieldmann", "sonepar",
+      "jysk", "sconto", "mobelix", "xxxlutz", "kika", "siko", "asko nabytek", "bonami"
+    ],
+    "Insurance": ["zivotni pojisteni", "kooperativa", "pojisteni", "pojistovna", "allianz", "generali", "uniqa", "csob pojist", "pvzp"],
+    "Travel": [
+      "ryanair", "kiwi.com", "wizz", "easyjet", "smartwings", "eurowings", "lufthansa", "czech airlines",
+      "europcar", "rentalcars", "record go", "airalo", "yesim", "booking.com", "airbnb", "hotel", "hostel", "ubytovani",
+      "penzion", "resort", "wellness", "lazne", "kemp ", "chata", "dovolena", "leo express", "tt-line", "ferry", "trajekt",
+      "skipass", "eskipass", "gopass", "obb "
+    ],
+    "Entertainment": [
+      "steam", "g2a", "blizzard", "riotgam", "riot games", "epic games", "playstation", "nintendo", "xbox",
+      "humble", "gog.com", "twitch", "discord", "lego", "pokemon",
+      "cinemacity", "cinema", "kino", "smsticket", "ticketportal", "ticketmaster", "ticketstream", "goout", "vstupenky",
+      "divadlo", "koncert", "festival", "knihy", "kniha",
+      "padel", "badminton", "bowling", "sportcentrum", "fitness", "posilovna", "lanove centrum",
+      "sazka", "tipsport", "fortuna"
+    ],
+    "Health": [
+      "lekarna", "lekarne", "dr.max", "benu", "pharmacy", "apotheke", "grandoptical", "optika", "optik",
+      "zubar", "zubni", "dentist", "doktor", "ordinace", "nemocnice", "poliklinika", "vitaminy", "fyzio", "masaz", "medicina"
+    ],
+    "Groceries": [
+      "billa", "rewe", "albert", "lidl", "kaufland", "penny", "globus", "tesco", "netto", "norma", "edeka", "carrefour",
+      "aldi", "spar ", "coop", "jednota", "rohlik", "kosik.cz", "makro", "marks",
+      "minimarket", "supermarket", "potraviny", "pekarstvi", "pekarna", "reznictvi", "jidlo", "vinoteka", "zelenina",
+      "ovoce", "mlekarna", "delikomat"
+    ],
+    "Restaurants & cafés": [
+      "restaurace", "restaurant", "restaura", "ristorante", "restoran", "trattoria", "osteria", "taverna", "gasthaus",
+      "gasthof", "imbiss", "mensa", "bistro", "kantina", "jidelna", "hostinec",
+      "pizza", "pizzeria", "kebab", "kfc", "mcdonald", "burger", "sushi", "padthai", "napoli",
+      "hospoda", "pivnice", "pivovar", "pub ", "bar ", "sklipek", "vinarna", "pivo", "vino ",
+      "kavarna", "cafe", "caffe", "coffee", "kava", "cukrarna", "zmrzlina", "gelato",
+      "damejidlo", "foodora", "wolt", "bolt food", "obed", "dinner", "lunch"
+    ],
+    "Transport": [
+      "cd.cz", "ceske drahy", "regiojet", "flixbus", "student agency", "autobusy", "jizdenka", "mhd", "litacka",
+      "cerpaci", "benzina", "benzinka", "orlen", "shell", "eurooil", "aral", "tankstelle", "tankstation", "omv", "mol - ",
+      "esso", "agip", "eni ", "total energies", "petrol", "turmoel",
+      "eznamka", "dalnicni", "mytne", "parking", "parkov", "uber", "bolt", "liftago", "taxi",
+      "autoservis", "pneu", "autodily", "cyklo", "bike", "elektrokolo", "kolo ",
+      "ppl.cz", "zasilkovna", "posta"
+    ],
+    "Gifts & donations": [
+      "dar kostel", "dar pro", "darek", "dar ", "soustrast", "pomozte", "charita", "nadace", "donio", "clovek v tisni",
+      "unicef", "lekari bez hranic", "sbirka", "svatba", "narozeniny", "kvetinarstvi", "kytka", "kytky", "flowers",
+      "podporuji", "sos povodne", "sos ukrajina", "povodne", "adra", "dobry andel"
+    ],
+    "Shopping": [
+      "alza", "datart", "mironet", "czc.cz", "mall.cz", "aliexpress", "temu", "allegro", "amazon", "amzn", "ebay",
+      "new yorker", "takko", "c&a", "c & a", "deichmann", "sportisimo", "decathlon", "hervis", "h&m", "zara", "reserved",
+      "about you", "zalando", "answear", "primark", "pepco", "tedi", "moda",
+      "notino", "rossmann", "teta drogerie", "dm drogerie", "dm-drogerie", "slevomat", "luxor", "sperky",
+      "super zoo", "hracky", "dracik", "bambule", "shoptet"
+    ]
+  },
+  "folded_in_charts": {
+    "_help": "Categories listed here are grouped as 'Everything else' in the colored charts (max 8 colors). They keep full detail in the category list and the transaction table.",
+    "categories": ["Insurance", "Health", "Cash withdrawals", "Fees", "Gifts & donations", "Other"]
+  },
+  "category_accounts": {
+    "_help": "Counterparty account -> category. Wins over keywords. Useful for rent, utilities and insurance paid by bank transfer with an empty note. Example: \"Housing & utilities\": [\"4000000001/0100\"]."
+  }
+}
