@@ -25,7 +25,7 @@ jobs:
         with:
           node-version: 24
       - name: Tests
-        run: node --test "tests/*.test.mjs"
+        run: node --test --test-timeout=180000 "tests/*.test.mjs"
       - name: Build the site
         run: |
           node scripts/build.mjs --with-samples --out site/index.html

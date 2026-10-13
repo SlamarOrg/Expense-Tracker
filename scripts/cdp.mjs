@@ -31,6 +31,12 @@ class Session {
     this.nextId = 1;
     this.pending = new Map();
     this.listeners = new Map();
+    this.closed = false;
+    ws.addEventListener('close', () => {
+      this.closed = true;
+      for (const { reject } of this.pending.values()) reject(new Error('CDP connection closed'));
+      this.pending.clear();
+    });
     ws.addEventListener('message', (ev) => {
       const msg = JSON.parse(typeof ev.data === 'string' ? ev.data : Buffer.from(ev.data).toString('utf8'));
       if (msg.id && this.pending.has(msg.id)) {
@@ -43,10 +49,15 @@ class Session {
     });
   }
 
-  send(method, params = {}) {
+  /** Every call times out, so a stuck browser fails the test instead of hanging the whole run. */
+  send(method, params = {}, { timeout = 30000 } = {}) {
+    if (this.closed) return Promise.reject(new Error(`CDP ${method}: connection closed`));
     const id = this.nextId++;
-    this.ws.send(JSON.stringify({ id, method, params }));
-    return new Promise((resolve, reject) => this.pending.set(id, { resolve, reject }));
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => { this.pending.delete(id); reject(new Error(`CDP ${method}: no answer within ${timeout} ms`)); }, timeout);
+      this.pending.set(id, { resolve: (v) => { clearTimeout(timer); resolve(v); }, reject: (e) => { clearTimeout(timer); reject(e); } });
+      this.ws.send(JSON.stringify({ id, method, params }));
+    });
   }
 
   on(method, fn) {
@@ -87,8 +98,8 @@ class Page {
   }
 
   /** Evaluate an expression in the page; promises are awaited. */
-  async eval(expression) {
-    const r = await this.s.send('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true });
+  async eval(expression, { timeout = 30000 } = {}) {
+    const r = await this.s.send('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true }, { timeout });
     if (r.exceptionDetails) throw new Error('page eval failed: ' + ((r.exceptionDetails.exception && r.exceptionDetails.exception.description) || r.exceptionDetails.text));
     return r.result.value;
   }
@@ -98,7 +109,7 @@ class Page {
     const end = Date.now() + timeout;
     let last;
     while (Date.now() < end) {
-      try { last = await this.eval(expression); if (last) return last; } catch { /* page still loading */ }
+      try { last = await this.eval(expression, { timeout: Math.max(1000, end - Date.now()) }); if (last) return last; } catch { /* page still loading */ }
       await sleep(interval);
     }
     throw new Error(`timed out waiting for: ${expression}`);
