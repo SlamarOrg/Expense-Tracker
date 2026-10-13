@@ -159,3 +159,22 @@ test('switching the language re-renders static texts, the dashboard and the empt
     server.close();
   }
 });
+
+test('importing an overrides file applies it and shows how many assignments came in', { skip }, async () => {
+  const server = await serve(ROOT, 0);
+  const base = `http://127.0.0.1:${server.address().port}/`;
+  const b = await launch({ browser });
+  try {
+    const page = await b.newPage();
+    await page.goto(base + '?demo=1&lang=en');
+    await checkPage(page);
+    await page.setFiles('#ovr input[type=file]', [fileURLToPath(new URL('./fixtures/overrides.json', import.meta.url))]);
+    await page.waitFor('/Imported 2 assignments/.test(document.getElementById("ovr").textContent)');
+    assert.equal(await page.eval('document.querySelectorAll("#ovr li").length'), 2);
+    assert.match(await page.eval('document.querySelector("#ovr .badge").textContent'), /exported/);
+    assert.deepEqual(page.exceptions, []);
+  } finally {
+    await b.close();
+    server.close();
+  }
+});

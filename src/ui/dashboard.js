@@ -489,6 +489,7 @@ export function mountDashboard(DATA) {
     hint.textContent = i18n.t('other.hint', { pct: allTotal ? Math.round(total / allTotal * 100) : 0 });
   }
 
+  let ovrMessage = null; // survives the re-render that follows an import
   function renderOverrides() {
     const box = clear(document.getElementById('ovr'));
     const all = OVR.all();
@@ -509,11 +510,11 @@ export function mountDashboard(DATA) {
     save.addEventListener('click', saveOverridesFile); act.appendChild(save);
     const imp = el('button', 'btn', i18n.t('ovr.import'));
     const file = document.createElement('input'); file.type = 'file'; file.accept = '.json,application/json'; file.className = 'srhide'; file.setAttribute('aria-label', i18n.t('ovr.importLabel'));
-    const status = el('span', 'status', i18n.t('ovr.status'));
+    const status = el('span', 'status', ovrMessage || i18n.t('ovr.status'));
     file.addEventListener('change', async () => {
       const f = file.files && file.files[0]; if (!f) return;
-      try { const r = OVR.merge(JSON.parse(await f.text())); OVR.markSaved(); applyOverridesNow(); renderAll(); status.textContent = r.ignored ? i18n.t('ovr.importedIgnored', { added: r.added, ignored: r.ignored }) : i18n.t('ovr.imported', { added: r.added }); }
-      catch (e) { status.textContent = i18n.t('ovr.importFailed', { error: e && e.message ? e.message : e }); }
+      try { const r = OVR.merge(JSON.parse(await f.text())); OVR.markSaved(); ovrMessage = r.ignored ? i18n.t('ovr.importedIgnored', { added: r.added, ignored: r.ignored }) : i18n.t('ovr.imported', { added: r.added }); applyOverridesNow(); renderAll(); }
+      catch (e) { ovrMessage = i18n.t('ovr.importFailed', { error: e && e.message ? e.message : e }); renderOverrides(); }
       file.value = '';
     });
     imp.addEventListener('click', () => file.click()); act.appendChild(imp); act.appendChild(file);
