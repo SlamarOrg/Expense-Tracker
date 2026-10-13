@@ -95,7 +95,8 @@ that produces `Tx` (the Python `tx()` logic). Rules JSON schema is identical to 
 **Description:** Derive `rules/default-cz.json` from Martin's `categories.json`: keep national
 chains and services, drop local businesses and location hints, empty all account lists. Produce
 `tasks/rules-review.md` listing every dropped keyword with a one-word reason. Commit only after
-Martin's OK.
+Martin's OK. The review itself stays local and is never committed: the dropped keywords are the
+private data the cleanup removes. The distinctive ones are in `.private-denylist`.
 
 **Acceptance criteria:**
 - [x] `default-cz.json` validates with `Rules.from()`; `own_accounts`, `investment_accounts`, `category_accounts` are empty
@@ -107,7 +108,7 @@ Martin's OK.
 - [x] Denylist test passes
 
 **Dependencies:** T4; ask-first gate (Martin reviews the dropped list)
-**Files:** `rules/default-cz.json`, `tasks/rules-review.md`, `tests/rules-default.test.mjs`
+**Files:** `rules/default-cz.json`, `tests/rules-default.test.mjs` (plus the local, uncommitted `tasks/rules-review.md`)
 **Scope:** S
 
 ### T6: CSV reader
