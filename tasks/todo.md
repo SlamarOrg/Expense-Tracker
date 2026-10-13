@@ -477,13 +477,14 @@ build, compares totals with `parse_statements.py --dry-run`, and keeps the build
 Final denylist scan with the full list, success criteria ticked with evidence.
 
 **Acceptance criteria:**
-- [ ] Row counts, kinds and per-category totals match Python, or every difference is explained and accepted in writing
-- [ ] Both real Air Bank PDFs pass the printed-total check in the browser
-- [ ] All seven SPEC success criteria have evidence noted in `tasks/plan.md`
+- [x] Row counts, kinds and per-category totals match Python, or every difference is explained (plan.md, success criteria evidence)
+- [ ] Martin accepts the two explained differences (keyword word boundaries, numbered repeats in FIO exports)
+- [x] Both real Air Bank PDFs pass the printed-total check in the browser
+- [x] All seven SPEC success criteria have evidence noted in `tasks/plan.md`
 
 **Verification:**
-- [ ] Manual, private, nothing committed
-- [ ] `node --test` with the full `.private-denylist` present
+- [x] Manual, private, nothing committed
+- [x] `node --test` with the full `.private-denylist` present
 
 **Dependencies:** T24
 **Files:** `tasks/plan.md` (evidence notes only)

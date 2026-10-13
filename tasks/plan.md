@@ -117,7 +117,7 @@ T21 ── T22 bundler ── T23 CI + Pages + CONTRIBUTING ── T24 README �
 - [x] T22 Bundler
 - [x] T23 CI, Pages workflow, CONTRIBUTING
 - [x] T24 README, samples README, screenshot
-- [ ] T25 Martin's migration and final checks
+- [x] T25 Martin's migration and final checks
 
 ### Checkpoint E: Success criteria
 - [ ] All seven success criteria in SPEC.md ticked with evidence
@@ -133,6 +133,37 @@ keywords such as `obi `, `dar `, `bar `, `vino `, `kolo `, `kemp `, so they matc
 other words ("Alza mobil", "darkoviny", "Sokolovska"). The JS classifier treats an edge space as a
 word boundary, which is what those keywords intend. Accepted as a correction, not a regression.
 A note for the private project: its CLAUDE.md gotcha about `stk ` has the same root cause.
+
+## Success criteria evidence (T25, 2026-10-13)
+
+Private figures stay out of the repository; only the outcome of each check is recorded here.
+
+1. **One offline file.** `tests/build.test.mjs` opens the bundle from `file://` in Chrome and in Edge,
+   imports all three samples, reloads, and asserts that no request other than the page itself
+   and `blob:`/`data:` URLs was made. Met. Firefox and Safari were not tested (not installed).
+2. **Same results as the Python reference.** On Martin's real statements, private rules and
+   overrides, loaded into the bundle through the real UI in a local headless browser: row
+   counts, duplicates, kinds and all 14 category totals equalled the JS CLI, and the CLI equalled
+   Python except for the keyword-boundary correction recorded under Checkpoint B. The run then
+   exposed a bug both tools shared: identical rows inside one FIO export were collapsed into one.
+   After the fix the JS tools keep 20 more FIO rows than Python, all real transactions. Met, with
+   both differences explained; the private Python tool still has the bug.
+3. **Air Bank totals.** The sample and both real PDFs match the printed debit total, in Node and
+   in the browser bundle. Met.
+4. **Zero dependencies, green on a fresh clone.** The full suite, both builds and both render
+   checks pass in a fresh local clone (with `rules/default-cz.json` added, see T5). Real CI runs
+   only after the first push. Partly verified.
+5. **Pages demo.** The demo build renders with fake data and a banner saying so, and links the
+   downloadable dashboard. The deployment itself needs the remote and Pages enabled. Partly
+   verified.
+6. **No personal data.** The denylist test passes on the tree, and a scan of every blob and
+   commit message in the history found nothing. Commit author metadata carries Martin's personal
+   email by his git config; flagged for him before pushing. Met for content.
+7. **CONTRIBUTING.** Written against the code (registry, detection, snapshot helper, dictionary
+   tests). Whether a stranger needs no questions cannot be verified here.
+
+Bugs found and fixed during the migration run: the overrides import confirmation was written to
+a detached element, and the duplicate collapse above. Both have regression tests.
 
 ## Risks and mitigations
 
