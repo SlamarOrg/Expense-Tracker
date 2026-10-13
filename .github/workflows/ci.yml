@@ -1,0 +1,33 @@
+# Tests, bundle and headless render checks on every push and pull request.
+# Node 22 is the minimum the project supports, 24 the current LTS.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Unit and browser tests
+        run: node --test "tests/*.test.mjs"
+      - name: Build the dashboard and the demo
+        run: |
+          node scripts/build.mjs
+          node scripts/build.mjs --with-samples --out dist/demo.html
+      - name: Render check, dashboard (empty state)
+        run: node scripts/render-check.mjs dist/dashboard.html
+      - name: Render check, demo in Czech and dark theme
+        run: node scripts/render-check.mjs dist/demo.html --lang cs --theme dark

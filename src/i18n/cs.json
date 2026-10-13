@@ -176,7 +176,7 @@
   "import.problems.other": "{n} bloků se nepodařilo přečíst:",
   "import.failed": "Nahrání selhalo",
   "import.unknownFile": "neznámý typ souboru (čekám FIO nebo Revolut CSV, nebo Air Bank PDF)",
-  "notice.demo": "Ukázka s vymyšlenými daty. Nic, co sem nahrajete, se neukládá. Pro vlastní výpisy si stáhněte dashboard.",
+  "notice.demo": "Ukázka s vymyšlenými daty. Nic, co sem nahrajete, se neukládá. Pro vlastní výpisy si dashboard stáhněte a otevřete ze svého počítače.",
   "notice.noStorage": "Tento prohlížeč zde nedovoluje ukládat data, takže nahrané výpisy po obnovení stránky zmizí.",
   "settings.title": "Nastavení",
   "settings.close": "Zavřít nastavení",
@@ -207,5 +207,6 @@
   "settings.dataTitle": "Vaše data",
   "settings.dataHelp": "Odstraní z tohoto prohlížeče všechny nahrané transakce, vaše pravidla a přiřazení kategorií. Vzhled a jazyk zůstanou.",
   "settings.forget": "Zapomenout moje data",
-  "settings.forgetConfirm": "Odstranit z tohoto prohlížeče všechny nahrané transakce, pravidla a přiřazení kategorií? Nelze vrátit zpět."
+  "settings.forgetConfirm": "Odstranit z tohoto prohlížeče všechny nahrané transakce, pravidla a přiřazení kategorií? Nelze vrátit zpět.",
+  "notice.download": "Stáhnout dashboard"
 }

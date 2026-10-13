@@ -122,9 +122,16 @@ export function renderImportResults({ results = [], busy = '', warnings = [], ti
 }
 
 /** Banner at the top of the page; empty text hides it. */
-export function setNotice(text, { warn = false } = {}) {
-  const n = document.getElementById('notice');
-  n.textContent = text || '';
+export function setNotice(text, { warn = false, link = null } = {}) {
+  const n = clear(document.getElementById('notice'));
+  n.appendChild(document.createTextNode(text || ''));
+  if (text && link) {
+    n.appendChild(document.createTextNode(' '));
+    const a = el('a', null, link.label);
+    a.href = link.href;
+    if (link.download) a.setAttribute('download', link.download);
+    n.appendChild(a);
+  }
   n.className = 'notice' + (warn ? ' warn' : '');
   n.hidden = !text;
 }

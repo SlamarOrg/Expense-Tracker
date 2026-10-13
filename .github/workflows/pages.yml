@@ -1,0 +1,48 @@
+# Publishes the demo (fake sample data) and the downloadable dashboard to GitHub Pages.
+# One-time setup: repository Settings > Pages > Source: "GitHub Actions".
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Tests
+        run: node --test "tests/*.test.mjs"
+      - name: Build the site
+        run: |
+          node scripts/build.mjs --with-samples --out site/index.html
+          node scripts/build.mjs --out site/dashboard.html
+          node scripts/render-check.mjs site/index.html
+          node scripts/render-check.mjs site/dashboard.html
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

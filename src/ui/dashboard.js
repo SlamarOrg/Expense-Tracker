@@ -31,7 +31,7 @@ export function mountDashboard(DATA) {
   const OTHER_LABEL = i18n.t('chart.everythingElse');
   const ALL_SPENDING = i18n.t('trend.all');
   const INVEST = 'Investments';
-  const BANKS = ['FIO', 'Airbank', 'Revolut'].filter(b => TX.some(t => t.s === b));
+  const BANKS = [...new Set(TX.map(t => t.s))].sort(); // every bank present in the data, no fixed list
   const ALL_CATS = (DATA.categories || []).slice();
   const DAY = 86400000;
 

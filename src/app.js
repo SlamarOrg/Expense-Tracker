@@ -29,7 +29,12 @@ const app = { store: null, rulesJson: null, rules: null, overrides: null, dashbo
 /** Show the import panel and remember how, so a language switch can render it again. */
 function showPanel(render) { app.panel = render; render(); }
 
-function showNotice(key, opts) { app.noticeKey = key ? [key, opts] : null; setNotice(key ? t(key) : '', opts); }
+function noticeOpts(opts = {}) {
+  // the bundled demo sits next to dashboard.html on GitHub Pages; offer the download there
+  return opts.download ? { ...opts, link: { href: 'dashboard.html', download: 'bank-statement-dashboard.html', label: t('notice.download') } } : opts;
+}
+
+function showNotice(key, opts) { app.noticeKey = key ? [key, opts] : null; setNotice(key ? t(key) : '', noticeOpts(opts)); }
 
 function applyUrlParams() {
   const theme = params.get('theme');
@@ -96,7 +101,7 @@ function setupLanguage() {
     markLanguage();
     translateStatic();
     if (app.importUi) app.importUi.relabel();
-    if (app.noticeKey) setNotice(t(app.noticeKey[0]), app.noticeKey[1]);
+    if (app.noticeKey) setNotice(t(app.noticeKey[0]), noticeOpts(app.noticeKey[1]));
     if (app.panel && !document.getElementById('importPanel').hidden) app.panel();
     await refresh();
   }));
@@ -108,7 +113,7 @@ async function main() {
   setupLanguage();
   setupTheme(() => { if (app.dashboard) app.dashboard.renderAll(); });
   app.store = await openStore({ backend: DEMO ? 'memory' : 'indexeddb' });
-  if (DEMO) showNotice('notice.demo');
+  if (DEMO) showNotice('notice.demo', { download: globalThis.BSD_DEMO === true });
   else if (app.store.fallbackReason) { console.warn(app.store.fallbackReason); showNotice('notice.noStorage', { warn: true }); }
 
   app.rulesJson = (await app.store.getSetting('rules', null)) || clone(defaultRules);

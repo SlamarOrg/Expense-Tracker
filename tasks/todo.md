@@ -443,11 +443,11 @@ switch next to the theme switch; a test greps `src/ui/` for untranslated user-fa
 `RawRow` contract and how to add a bank parser with a sample and snapshot.
 
 **Acceptance criteria:**
-- [ ] Workflows pass `node --check`-style YAML sanity and reference only built-in actions
-- [ ] CONTRIBUTING walks through adding a fictional bank end to end
+- [x] Workflows pass `node --check`-style YAML sanity and reference only built-in actions
+- [x] CONTRIBUTING walks through adding a fictional bank end to end
 
 **Verification:**
-- [ ] Manual review; real verification only after Martin's first push (Checkpoint E)
+- [x] Manual review; real verification only after Martin's first push (Checkpoint E)
 
 **Dependencies:** T22; needs SPEC open question 1 (account) answered
 **Files:** `.github/workflows/ci.yml`, `.github/workflows/pages.yml`, `CONTRIBUTING.md`

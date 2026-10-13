@@ -164,7 +164,7 @@
   "import.problems.other": "{n} blocks could not be read:",
   "import.failed": "Import failed",
   "import.unknownFile": "file type not recognized (expected a FIO or Revolut CSV, or an Air Bank PDF)",
-  "notice.demo": "Demo with fake sample data. Nothing you import here is saved. Download the dashboard to use it with your own statements.",
+  "notice.demo": "Demo with fake sample data. Nothing you import here is saved. To use your own statements, download the dashboard and open it from your computer.",
   "notice.noStorage": "This browser does not allow local storage here, so imported statements are lost on reload.",
   "settings.title": "Settings",
   "settings.close": "Close settings",
@@ -195,5 +195,6 @@
   "settings.dataTitle": "Your data",
   "settings.dataHelp": "Removes every imported transaction, your rules and your category choices from this browser. Theme and language stay.",
   "settings.forget": "Forget my data",
-  "settings.forgetConfirm": "Remove all imported transactions, rules and category choices from this browser? This cannot be undone."
+  "settings.forgetConfirm": "Remove all imported transactions, rules and category choices from this browser? This cannot be undone.",
+  "notice.download": "Download the dashboard"
 }
