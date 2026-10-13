@@ -30,13 +30,13 @@ export function fioSample() {
   const card = (msg) => msg;
   const rows = [
     // [date, amount, currency, counter, bank, message, note, type]
-    ['05.03.2024', '-245,5', 'CZK', '', '', card('Nákup: BILLA 123, BRNO, CZ, dne 3.3.2024, částka  245.50 CZK'), card('Nákup: BILLA 123, BRNO, CZ, dne 3.3.2024, částka  245.50 CZK'), 'Karetní transakce'],
+    ['05.03.2024', '-245,5', 'CZK', '', '', card('Nákup: BILLA 123, PRAHA, CZ, dne 3.3.2024, částka  245.50 CZK'), card('Nákup: BILLA 123, PRAHA, CZ, dne 3.3.2024, částka  245.50 CZK'), 'Karetní transakce'],
     ['06.03.2024', '-251,2', 'CZK', '', '', 'Nákup: SPOTIFY AB, STOCKHOLM, SE, dne 4.3.2024, částka  9.99 EUR', 'Nákup: SPOTIFY AB, STOCKHOLM, SE, dne 4.3.2024, částka  9.99 EUR', 'Karetní transakce'],
     ['08.03.2024', '1500', 'CZK', '', '', 'Kredit: ALZA.CZ, PRAHA, CZ, dne 6.3.2024, částka  1500.00 CZK', 'Kredit: ALZA.CZ, PRAHA, CZ, dne 6.3.2024, částka  1500.00 CZK', 'Karetní transakce'],
-    ['08.03.2024', '-2000', 'CZK', '', '', 'Výběr z bankomatu: ATM CS A.S., BRNO, CZ, dne 7.3.2024, částka  2000.00 CZK', 'Výběr z bankomatu: ATM CS A.S., BRNO, CZ, dne 7.3.2024, částka  2000.00 CZK', 'Karetní transakce'],
+    ['08.03.2024', '-2000', 'CZK', '', '', 'Výběr z bankomatu: ATM CS A.S., PRAHA, CZ, dne 7.3.2024, částka  2000.00 CZK', 'Výběr z bankomatu: ATM CS A.S., PRAHA, CZ, dne 7.3.2024, částka  2000.00 CZK', 'Karetní transakce'],
     ['09.03.2024', '-2000', 'CZK', '', '', 'Nákup: Revolut**1234*, DUBLIN, IE, dne 8.3.2024, částka  2000.00 CZK', 'Nákup: Revolut**1234*, DUBLIN, IE, dne 8.3.2024, částka  2000.00 CZK', 'Karetní transakce'],
-    ['11.03.2024', '-1200', 'CZK', '', '', 'Platba kartou: SHELL 1234, BRNO, CZ, dne 9.3.2024, částka  1200.00 CZK', 'Platba kartou: SHELL 1234, BRNO, CZ, dne 9.3.2024, částka  1200.00 CZK', 'Karetní transakce'],
-    ['12.03.2024', '-89,9', 'CZK', '', '', '', 'Nákup: LIDL 456, BRNO, CZ, dne 11.3.2024, částka  89.90 CZK', 'Karetní transakce'],
+    ['11.03.2024', '-1200', 'CZK', '', '', 'Platba kartou: SHELL 1234, PRAHA, CZ, dne 9.3.2024, částka  1200.00 CZK', 'Platba kartou: SHELL 1234, PRAHA, CZ, dne 9.3.2024, částka  1200.00 CZK', 'Karetní transakce'],
+    ['12.03.2024', '-89,9', 'CZK', '', '', '', 'Nákup: LIDL 456, PRAHA, CZ, dne 11.3.2024, částka  89.90 CZK', 'Karetní transakce'],
     ['12.03.2024', '-5000', 'CZK', ACCT.fioSavings, '2010', 'Převod na spořicí účet', '', 'Platba převodem uvnitř banky'],
     ['13.03.2024', '5000', 'CZK', ACCT.fioSavings, '2010', 'Zpět z úspor', '', 'Platba převodem uvnitř banky'],
     ['15.03.2024', '-12500', 'CZK', ACCT.landlord, '0100', '', '', 'Bezhotovostní platba'],
@@ -96,7 +96,7 @@ export function airbankSampleRows() {
   const card = '516844******4400';
   return [
     { booked: '02.03.2024', executed: '02.03.2024', type: ['Příchozí úhrada'], code: '1000000101', name: ['ZAMĚSTNAVATEL S.R.O.'], acct: `${ACCT.employer} / 0100`, details: ['Mzda 02/2024'], amount: 45000, fee: 0 },
-    { booked: '05.03.2024', executed: '03.03.2024', type: ['Platba kartou'], code: '1000000102', name: ['Jan Vzorek'], acct: card, details: ['BILLA 456 BRNO, BRNO,', '602 00, CZE'], amount: -512.3, fee: 0 },
+    { booked: '05.03.2024', executed: '03.03.2024', type: ['Platba kartou'], code: '1000000102', name: ['Jan Vzorek'], acct: card, details: ['BILLA 456 PRAHA, PRAHA,', '110 00, CZE'], amount: -512.3, fee: 0 },
     { booked: '07.03.2024', executed: '05.03.2024', type: ['Platba kartou'], code: '1000000103', name: ['Jan Vzorek'], acct: card, details: ['RYANAIR DUBLIN, DUBLIN,', 'IRL', '40,00 EUR kurz: 25,100 CZK/EUR'], amount: -1004, fee: 0 },
     { booked: '15.03.2024', executed: '15.03.2024', type: ['Odchozí úhrada'], code: '1000000104', name: ['PRONAJÍMATEL'], acct: `${ACCT.landlord} / 0100`, details: ['Nájem duben'], amount: -12500, fee: 0 },
     { booked: '16.03.2024', executed: '16.03.2024', type: ['Odchozí úhrada'], code: '1000000105', oldLayout: true, name: ['Vzorek, Jan'], acct: `${ACCT.fioMain} / 2010`, details: [], amount: -5000, fee: 0 },
@@ -104,9 +104,9 @@ export function airbankSampleRows() {
     { booked: '22.03.2024', executed: '20.03.2024', type: ['Vrácení peněz'], code: '1000000107', name: ['Jan Vzorek'], acct: card, details: ['ALZA.CZ PRAHA, PRAHA,', '170 00'], amount: 1500, fee: 0 },
     { booked: '25.03.2024', executed: '25.03.2024', type: ['Odchozí úhrada'], code: '1000000108', name: ['ZONKY INVESTICE'], acct: `${ACCT.broker} / 2010`, details: ['Investice'], amount: -2000, fee: 0, after: ['Úročení 5,5 % p.a.'] },
     { booked: '27.03.2024', executed: '26.03.2024', type: ['Platba kartou'], code: '1000000109', name: ['Jan Vzorek'], acct: card, details: ['Revolut**1234* DUBLIN,', 'IRL'], amount: -2000, fee: 0 },
-    { booked: '28.03.2024', executed: '27.03.2024', type: ['Výběr z bankomatu'], code: '1000000110', name: ['Jan Vzorek'], acct: card, details: ['ATM AIR BANK BRNO, BRNO,', 'CZE'], amount: -1000, fee: -30 },
+    { booked: '28.03.2024', executed: '27.03.2024', type: ['Výběr z bankomatu'], code: '1000000110', name: ['Jan Vzorek'], acct: card, details: ['ATM AIR BANK PRAHA, PRAHA,', 'CZE'], amount: -1000, fee: -30 },
     { booked: '31.03.2024', executed: '31.03.2024', type: ['Úrok z vkladu'], code: '1000000111', name: ['Air Bank'], acct: null, details: [], amount: 12.34, fee: 0 },
-    { booked: '02.04.2024', executed: '01.04.2024', type: ['Platba kartou'], code: '1000000112', name: ['Jan Vzorek'], acct: card, details: ['KAVARNA U KOCKY, BRNO,', 'CZE'], amount: -85, fee: 0 },
+    { booked: '02.04.2024', executed: '01.04.2024', type: ['Platba kartou'], code: '1000000112', name: ['Jan Vzorek'], acct: card, details: ['KAVARNA U KOCKY, PRAHA,', 'CZE'], amount: -85, fee: 0 },
   ];
 }
 
@@ -137,7 +137,7 @@ export function airbankSample() {
   };
 
   // page 1 header (holder block, statement data, totals)
-  for (const t of ['Jan Vzorek', 'Vzorová 1', '602 00 Brno', 'Česká republika']) { put(60, t, 9); y -= 12; }
+  for (const t of ['Jan Vzorek', 'Vzorová 1', '110 00 Praha', 'Česká republika']) { put(60, t, 9); y -= 12; }
   y -= 8;
   put(60, 'Výpis z běžného účtu', 11); y -= 16;
   for (const t of [
@@ -224,18 +224,18 @@ export function demoYearSample() {
     transfer(day(17), -3000, ACCT.broker, '2010', 'PORTU investice', '');
     card(day(3), 'SPOTIFY AB', 'STOCKHOLM', 9.99, 'EUR');
     card(day(5), 'NETFLIX.COM', 'AMSTERDAM', 259);
-    for (let d = 2; d <= days; d += 3 + Math.floor(rnd() * 2)) card(day(d), pick(['BILLA 123', 'LIDL 456', 'ALBERT 789', 'KAUFLAND 12', 'ROHLIK.CZ']), pick(['BRNO', 'PRAHA']), amount(180, 1450));
-    for (let d = 4; d <= days; d += 6 + Math.floor(rnd() * 4)) card(day(d), pick(['PIZZERIA NAPOLI', 'BISTRO U PARKU', 'KAVARNA SLUNCE', 'MCDONALDS 33', 'RESTAURACE POD LIPOU']), pick(['BRNO', 'PRAHA']), amount(120, 950));
-    card(day(7), pick(['SHELL 1234', 'OMV 77', 'ORLEN 5']), 'BRNO', amount(900, 1700));
-    card(day(22), pick(['SHELL 1234', 'OMV 77', 'ORLEN 5']), 'BRNO', amount(900, 1700));
+    for (let d = 2; d <= days; d += 3 + Math.floor(rnd() * 2)) card(day(d), pick(['BILLA 123', 'LIDL 456', 'ALBERT 789', 'KAUFLAND 12', 'ROHLIK.CZ']), pick(['PRAHA', 'PRAHA']), amount(180, 1450));
+    for (let d = 4; d <= days; d += 6 + Math.floor(rnd() * 4)) card(day(d), pick(['PIZZERIA NAPOLI', 'BISTRO U PARKU', 'KAVARNA SLUNCE', 'MCDONALDS 33', 'RESTAURACE POD LIPOU']), pick(['PRAHA', 'PRAHA']), amount(120, 950));
+    card(day(7), pick(['SHELL 1234', 'OMV 77', 'ORLEN 5']), 'PRAHA', amount(900, 1700));
+    card(day(22), pick(['SHELL 1234', 'OMV 77', 'ORLEN 5']), 'PRAHA', amount(900, 1700));
     if (rnd() < 0.6) card(day(11), 'CD.CZ', 'PRAHA', amount(180, 640));
     if (rnd() < 0.5) card(day(25), 'BOLT.EU', 'TALLINN', amount(120, 380));
-    if (rnd() < 0.7) card(day(13), pick(['ALZA.CZ', 'DECATHLON BRNO', 'H&M 210', 'NOTINO.CZ']), 'BRNO', amount(350, 3600));
-    if (rnd() < 0.4) card(day(19), pick(['CINEMA CITY', 'STEAM PURCHASE']), pick(['BRNO', 'SEATTLE']), amount(190, 1100));
-    if (rnd() < 0.35) card(day(9), 'DR.MAX LEKARNA', 'BRNO', amount(90, 650));
+    if (rnd() < 0.7) card(day(13), pick(['ALZA.CZ', 'DECATHLON PRAHA', 'H&M 210', 'NOTINO.CZ']), 'PRAHA', amount(350, 3600));
+    if (rnd() < 0.4) card(day(19), pick(['CINEMA CITY', 'STEAM PURCHASE']), pick(['PRAHA', 'SEATTLE']), amount(190, 1100));
+    if (rnd() < 0.35) card(day(9), 'DR.MAX LEKARNA', 'PRAHA', amount(90, 650));
     const cash = Math.round(amount(1, 3)) * 1000;
     rows.push([dmy(day(26)), cz(-cash), 'CZK', '', '',
-      `Výběr z bankomatu: ATM CS A.S., BRNO, CZ, dne ${short(day(25))}, částka  ${cash.toFixed(2)} CZK`, '', 'Karetní transakce']);
+      `Výběr z bankomatu: ATM CS A.S., PRAHA, CZ, dne ${short(day(25))}, částka  ${cash.toFixed(2)} CZK`, '', 'Karetní transakce']);
     if (month === 6) { card(day(8), 'BOOKING.COM', 'AMSTERDAM', 9800); card(day(9), 'RYANAIR', 'DUBLIN', 128, 'EUR'); }
     if (month === 11) card(day(18), 'ALZA.CZ', 'PRAHA', 7490);
   }

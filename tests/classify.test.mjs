@@ -53,7 +53,7 @@ test('categorize is first match wins in rules order and falls back to Other', ()
 test('regression: a short keyword must not match inside another word', () => {
   // "stk " (vehicle inspection) once matched "částka " in every FIO card row
   assert.equal(rules.categorize('Nákup: MERCHANT, dne 1.1.2024, částka 120.50 CZK'), 'Other');
-  assert.equal(rules.categorize('STK Brno, Praha'), 'Transport');
+  assert.equal(rules.categorize('STK Praha 9, Praha'), 'Transport');
   assert.equal(rules.categorize('Prohlidka STK'), 'Transport'); // trailing-space keyword at the end of the text
   assert.equal(rules.categorize('xstk y'), 'Transport'); // only the trailing space is significant, not a leading one
   assert.equal(rules.categorize('mol praha'), 'Transport');
@@ -62,7 +62,7 @@ test('regression: a short keyword must not match inside another word', () => {
 });
 
 test('keywordMatches treats edge spaces as word boundaries', () => {
-  assert.equal(keywordMatches('obi, brno', 'obi '), true);
+  assert.equal(keywordMatches('obi, praha', 'obi '), true);
   assert.equal(keywordMatches('obi', 'obi '), true);
   assert.equal(keywordMatches('mobil', 'obi '), false);
   assert.equal(keywordMatches('t-mobile', 'obi '), false);

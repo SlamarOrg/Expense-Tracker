@@ -40,7 +40,7 @@ test('rows carry the execution date, the booking date and a code-based id', () =
 
 test('card payment: merchant comes from the detail lines, holder name is not the merchant', () => {
   const t = byMerchant('BILLA');
-  assert.equal(t.m, 'BILLA 456 BRNO, BRNO, 602 00, CZE');
+  assert.equal(t.m, 'BILLA 456 PRAHA, PRAHA, 110 00, CZE');
   assert.equal(t.cp, '');
   assert.equal(t.k, KIND.EXPENSE);
   assert.equal(t.c, 'Groceries');

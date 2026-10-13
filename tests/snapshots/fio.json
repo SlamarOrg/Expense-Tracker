@@ -12,7 +12,7 @@
     "c": "Groceries",
     "c0": "Groceries",
     "cp": "",
-    "id": "FIO|2900000001|2024-03-05|-245.5|CZK|Karetní transakce|/|Nákup: BILLA 123, BRNO, CZ, dne 3.3.2024, částka  245.50 CZK|Nákup: BILLA 123, BRNO, CZ, dne 3.3.2024, částka  245.50 CZK#1"
+    "id": "FIO|2900000001|2024-03-05|-245.5|CZK|Karetní transakce|/|Nákup: BILLA 123, PRAHA, CZ, dne 3.3.2024, částka  245.50 CZK|Nákup: BILLA 123, PRAHA, CZ, dne 3.3.2024, částka  245.50 CZK#1"
   },
   {
     "d": "2024-03-04",
@@ -57,7 +57,7 @@
     "c": "Cash withdrawals",
     "c0": "Cash withdrawals",
     "cp": "",
-    "id": "FIO|2900000001|2024-03-08|-2000|CZK|Karetní transakce|/|Výběr z bankomatu: ATM CS A.S., BRNO, CZ, dne 7.3.2024, částka  2000.00 CZK|Výběr z bankomatu: ATM CS A.S., BRNO, CZ, dne 7.3.2024, částka  2000.00 CZK#1"
+    "id": "FIO|2900000001|2024-03-08|-2000|CZK|Karetní transakce|/|Výběr z bankomatu: ATM CS A.S., PRAHA, CZ, dne 7.3.2024, částka  2000.00 CZK|Výběr z bankomatu: ATM CS A.S., PRAHA, CZ, dne 7.3.2024, částka  2000.00 CZK#1"
   },
   {
     "d": "2024-03-08",
@@ -87,7 +87,7 @@
     "c": "Transport",
     "c0": "Transport",
     "cp": "",
-    "id": "FIO|2900000001|2024-03-11|-1200|CZK|Karetní transakce|/|Platba kartou: SHELL 1234, BRNO, CZ, dne 9.3.2024, částka  1200.00 CZK|Platba kartou: SHELL 1234, BRNO, CZ, dne 9.3.2024, částka  1200.00 CZK#1"
+    "id": "FIO|2900000001|2024-03-11|-1200|CZK|Karetní transakce|/|Platba kartou: SHELL 1234, PRAHA, CZ, dne 9.3.2024, částka  1200.00 CZK|Platba kartou: SHELL 1234, PRAHA, CZ, dne 9.3.2024, částka  1200.00 CZK#1"
   },
   {
     "d": "2024-03-11",
@@ -95,14 +95,14 @@
     "orig": -89.9,
     "cur": "CZK",
     "m": "LIDL 456",
-    "n": "Nákup: LIDL 456, BRNO, CZ, dne 11.3.2024, částka  89.90 CZK",
+    "n": "Nákup: LIDL 456, PRAHA, CZ, dne 11.3.2024, částka  89.90 CZK",
     "s": "FIO",
     "t": "Karetní transakce",
     "k": "expense",
     "c": "Groceries",
     "c0": "Groceries",
     "cp": "",
-    "id": "FIO|2900000001|2024-03-12|-89.9|CZK|Karetní transakce|/||Nákup: LIDL 456, BRNO, CZ, dne 11.3.2024, částka  89.90 CZK#1"
+    "id": "FIO|2900000001|2024-03-12|-89.9|CZK|Karetní transakce|/||Nákup: LIDL 456, PRAHA, CZ, dne 11.3.2024, částka  89.90 CZK#1"
   },
   {
     "d": "2024-03-12",

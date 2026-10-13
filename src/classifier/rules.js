@@ -8,7 +8,7 @@ import { norm } from './normalize.js';
 // Keywords keep an intentional leading or trailing space ("stk " must not match "částka"),
 // while the inside is normalized like any text. An edge space means "word boundary": the
 // keyword must be followed (or preceded) by a non-alphanumeric character or the end of the text,
-// so "obi " matches "OBI, BRNO" and "obi brno" but not "mobil".
+// so "obi " matches "OBI, PRAHA" and "obi praha" but not "mobil".
 export const normKeyword = (k) => (/^\s/.test(k) ? ' ' : '') + norm(k) + (/\s$/.test(k) ? ' ' : '');
 
 const WORD = /[a-z0-9]/;

@@ -111,7 +111,7 @@ mismatch to the user instead of hiding it.
 
 - `rules/default-cz.json` is the starter ruleset. A keyword is a plain substring of the merchant,
   note and message after lowercasing and removing diacritics. A trailing space makes it a whole
-  word: `"stk "` matches "STK Brno" but not "částka". Keep keywords to chains and services that
+  word: `"stk "` matches "STK Praha" but not "částka". Keep keywords to chains and services that
   exist across a whole country, never a single local shop.
 - New UI text goes into both dictionaries with the same placeholders. Plural forms use the keys
   `name.one`, `name.few`, `name.many` and `name.other` (Czech needs all four, English only `one`

@@ -33,7 +33,7 @@ test('default ruleset classifies common Czech merchants', () => {
   assert.equal(rules.categorize('Nákup: BILLA 123, Praha'), 'Groceries');
   assert.equal(rules.categorize('DEKUJEME, ROHLIK.CZ'), 'Groceries');
   assert.equal(rules.categorize('Spotify AB'), 'Subscriptions');
-  assert.equal(rules.categorize('SHELL 1234 BRNO'), 'Transport');
+  assert.equal(rules.categorize('SHELL 1234 PRAHA'), 'Transport');
   assert.equal(rules.categorize('Výběr z bankomatu: CS a.s.'), 'Cash withdrawals');
   assert.equal(rules.categorize('částka 120.50 CZK'), 'Other');
 });
