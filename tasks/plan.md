@@ -147,7 +147,7 @@ Private figures stay out of the repository; only the outcome of each check is re
    Python except for the keyword-boundary correction recorded under Checkpoint B. The run then
    exposed a bug both tools shared: identical rows inside one FIO export were collapsed into one.
    After the fix the JS tools keep 20 more FIO rows than Python, all real transactions. Met, with
-   both differences explained; the private Python tool still has the bug.
+   both differences explained. Martin accepted both on 2026-10-13, and the private Python tool was fixed the same day; it now reports the same rows, kinds and category totals as the JS CLI.
 3. **Air Bank totals.** The sample and both real PDFs match the printed debit total, in Node and
    in the browser bundle. Met.
 4. **Zero dependencies, green on a fresh clone.** The full suite, both builds and both render

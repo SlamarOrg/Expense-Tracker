@@ -478,7 +478,7 @@ Final denylist scan with the full list, success criteria ticked with evidence.
 
 **Acceptance criteria:**
 - [x] Row counts, kinds and per-category totals match Python, or every difference is explained (plan.md, success criteria evidence)
-- [ ] Martin accepts the two explained differences (keyword word boundaries, numbered repeats in FIO exports)
+- [x] Martin accepts the two explained differences (keyword word boundaries, numbered repeats in FIO exports)
 - [x] Both real Air Bank PDFs pass the printed-total check in the browser
 - [x] All seven SPEC success criteria have evidence noted in `tasks/plan.md`
 
@@ -492,4 +492,4 @@ Final denylist scan with the full list, success criteria ticked with evidence.
 
 ## Checkpoint E: Success criteria
 - [ ] Martin creates the remote, pushes, and confirms CI and Pages green
-- [ ] Vault ADR written after approval (proposed in the session, not yet written)
+- [x] Vault ADR written after approval (`Architecture/adr-browser-only-open-source-dashboard.md` in the vault)
