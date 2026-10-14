@@ -1,0 +1,12 @@
+# Keeps the commit-pinned GitHub Actions current: Dependabot proposes a pull request that moves the
+# pin (and its version comment) when an action releases. There are no npm dependencies to watch;
+# the vendored libraries are updated by hand (vendor/VERSIONS.md).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ['*']
