@@ -140,10 +140,28 @@ class Page {
   }
 }
 
+/** Ask the browser itself to quit over its browser-level DevTools endpoint. */
+async function closeBrowser(base) {
+  const info = await (await fetch(`${base}/json/version`, { signal: AbortSignal.timeout(5000) })).json();
+  const ws = new WebSocket(info.webSocketDebuggerUrl);
+  await new Promise((resolve, reject) => {
+    const timer = setTimeout(() => { ws.close(); reject(new Error('browser endpoint did not open')); }, 5000);
+    ws.addEventListener('open', () => { clearTimeout(timer); resolve(); });
+    ws.addEventListener('error', (e) => { clearTimeout(timer); reject(e); });
+  });
+  const closed = new Promise((r) => { ws.addEventListener('close', r); setTimeout(r, 5000); });
+  ws.send(JSON.stringify({ id: 1, method: 'Browser.close' }));
+  await closed;
+  ws.close();
+}
+
 /**
  * A cold browser start on a CI runner takes 10-16 s, so the default start timeout is generous.
  * If the start fails, the browser process is killed before the error is thrown: a leftover child
  * process keeps Node's event loop alive, and the whole test file then hangs until its timeout.
+ * Killing the spawned process is not enough on its own: Edge on Windows starts through a launcher
+ * process that exits at once and leaves the real browser running, so close() sends Browser.close
+ * over DevTools first and closes every page socket.
  */
 export async function launch({ browser, timeout = 60000 } = {}) {
   if (!browser) throw new Error('no browser given');
@@ -154,16 +172,19 @@ export async function launch({ browser, timeout = 60000 } = {}) {
     '--remote-debugging-port=0', `--user-data-dir=${profile}`, 'about:blank',
   ], { stdio: 'ignore' });
   proc.on('error', () => {}); // a spawn failure surfaces as the missing DevToolsActivePort below
+  const sockets = new Set();
+  let base;
 
   async function close() {
+    if (base) await closeBrowser(base).catch(() => {});
+    for (const ws of sockets) { try { ws.close(); } catch { /* already closed */ } }
     proc.kill();
     await new Promise((r) => { if (proc.exitCode !== null || proc.signalCode !== null) r(); else proc.once('exit', r); setTimeout(r, 3000); });
-    for (let i = 0; i < 10; i++) {
-      try { rmSync(profile, { recursive: true, force: true }); break; } catch { await sleep(200); }
+    for (let i = 0; i < 20; i++) {
+      try { rmSync(profile, { recursive: true, force: true }); break; } catch { await sleep(250); }
     }
   }
 
-  let base;
   try {
     const portFile = await waitForFile(join(profile, 'DevToolsActivePort'), timeout);
     base = `http://127.0.0.1:${Number(portFile.split('\n')[0])}`;
@@ -173,10 +194,14 @@ export async function launch({ browser, timeout = 60000 } = {}) {
   }
 
   return {
+    /** DevTools HTTP endpoint, e.g. http://127.0.0.1:9222 */
+    endpoint: base,
     async newPage(opts) {
       const res = await fetch(`${base}/json/new?about:blank`, { method: 'PUT', signal: AbortSignal.timeout(30000) });
       const target = await res.json();
       const ws = new WebSocket(target.webSocketDebuggerUrl);
+      sockets.add(ws);
+      ws.addEventListener('close', () => sockets.delete(ws));
       await new Promise((resolve, reject) => {
         const timer = setTimeout(() => { ws.close(); reject(new Error('CDP WebSocket did not open within 30000 ms')); }, 30000);
         ws.addEventListener('open', () => { clearTimeout(timer); resolve(); });

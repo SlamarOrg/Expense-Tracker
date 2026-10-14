@@ -27,6 +27,16 @@ test('regression: a browser that does not start in time is killed, so the test p
   assert.match(r.stdout, /browser did not start/);
 });
 
+test('close() shuts the browser down, also when the spawned process was only a launcher', { skip }, async () => {
+  // Edge on Windows starts through a launcher that exits at once; killing it left the browser
+  // running with an open DevTools socket, and the test file never exited.
+  const b = await launch({ browser });
+  await b.newPage();
+  assert.ok((await fetch(`${b.endpoint}/json/version`)).ok);
+  await b.close();
+  await assert.rejects(fetch(`${b.endpoint}/json/version`, { signal: AbortSignal.timeout(3000) }));
+});
+
 test('demo mode renders the samples without errors in light and dark; a fresh profile shows the empty state', { skip }, async () => {
   const server = await serve(ROOT, 0);
   const base = `http://127.0.0.1:${server.address().port}/`;
