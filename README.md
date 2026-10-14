@@ -4,8 +4,8 @@ An offline spending dashboard for your bank statement exports. Drop the files on
 see where your money goes: by month, by category, by week, with a searchable transaction list.
 Everything runs in your browser. There is no server, no account and no bank login.
 
-**[Try the demo](https://slamartin.github.io/ExpenseTracker/)** with made-up data, or open
-**[the dashboard](https://slamartin.github.io/ExpenseTracker/dashboard.html)** and save it to use
+**[Try the demo](https://slamarorg.github.io/Expense-Tracker/)** with made-up data, or open
+**[the dashboard](https://slamarorg.github.io/Expense-Tracker/dashboard.html)** and save it to use
 offline.
 
 ![The dashboard with fake sample data](docs/screenshot.png)
@@ -17,16 +17,25 @@ The interface is in English and Czech. Parsers for other banks are welcome, see
 ## Privacy
 
 - Your statements are read by the page itself, in your browser. Nothing is uploaded anywhere.
-- The page makes no network requests at all. It also works with the network turned off.
+- The page makes no network requests at all, and its Content Security Policy makes the browser
+  block any that were attempted. It also works with the network turned off.
 - Imported transactions are stored in this browser's local storage (IndexedDB) so they are still
   there next time. **Settings → Forget my data** removes them.
+- That storage is less private than it sounds. In Chrome and Edge, every page opened from a file
+  on your computer (`file://`) shares one storage area, so any other HTML file you open in the
+  same browser could read your transactions. On the project site, only pages of
+  `slamarorg.github.io` can read it, and that address hosts nothing but this dashboard. If that
+  matters to you:
+  - turn on **Settings → Don't remember on this device**: statements then stay in memory only and
+    are gone when you close the page, or
+  - use the dashboard in a separate browser profile that you use for nothing else.
 - The code is short and has no dependencies beyond two vendored libraries (Chart.js and pdf.js),
-  so you can read what it does.
+  so you can read what it does. Security reports: see [SECURITY.md](SECURITY.md).
 
 ## Use it
 
 1. Get the dashboard, a single file named `dashboard.html`. Save it from
-   [the project site](https://slamartin.github.io/ExpenseTracker/dashboard.html), or build it
+   [the project site](https://slamarorg.github.io/Expense-Tracker/dashboard.html), or build it
    yourself (see Development below).
 2. Open it in a current browser; double-clicking the file is enough. It is tested in Chrome and
    Edge.
@@ -37,7 +46,7 @@ The interface is in English and Czech. Parsers for other banks are welcome, see
    is then not counted as spending. Add the accounts of brokers or savings products as
    investment accounts, and the accounts you pay rent or utilities to as category accounts.
 
-[The demo](https://slamartin.github.io/ExpenseTracker/) runs the same dashboard on made-up data,
+[The demo](https://slamarorg.github.io/Expense-Tracker/) runs the same dashboard on made-up data,
 and nothing you import there is saved.
 
 ## Supported banks
