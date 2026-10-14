@@ -44,12 +44,13 @@ export function inspectDom(html) {
 
 const READY = '(document.body && document.body.dataset.ready === "1") || ((document.getElementById("errlog") || {}).textContent || "").trim() !== ""';
 
-/** Check an already open page (cdp.mjs Page). */
+/** Check an already open page (cdp.mjs Page). A Content Security Policy violation counts as an error. */
 export async function checkPage(page, { timeout = 30000 } = {}) {
   await page.waitFor(READY, { timeout }).catch(() => {});
   const html = await page.eval('document.documentElement.outerHTML');
   const r = inspectDom(html);
-  const errors = [r.errors, ...page.exceptions].filter(Boolean).join('\n');
+  const csp = (page.log || []).filter((e) => /Content Security Policy/i.test(e.text)).map((e) => 'CSP: ' + e.text);
+  const errors = [r.errors, ...page.exceptions, ...csp].filter(Boolean).join('\n');
   return { ok: r.ready === '1' && errors === '', ready: r.ready, errors, empty: r.empty, html };
 }
 

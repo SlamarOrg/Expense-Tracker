@@ -72,8 +72,10 @@ class Page {
     this.console = [];
     this.exceptions = [];
     this.requests = [];
+    this.log = []; // browser-generated messages, CSP violations among them
     session.on('Network.requestWillBeSent', (p) => this.requests.push(p.request.url));
     session.on('Runtime.consoleAPICalled', (p) => this.console.push(p.args.map((a) => a.value ?? a.description ?? '').join(' ')));
+    session.on('Log.entryAdded', (p) => this.log.push(p.entry));
     session.on('Runtime.exceptionThrown', (p) => this.exceptions.push((p.exceptionDetails.exception && p.exceptionDetails.exception.description) || p.exceptionDetails.text));
   }
 
@@ -82,6 +84,7 @@ class Page {
     await this.s.send('Runtime.enable');
     await this.s.send('DOM.enable');
     await this.s.send('Network.enable');
+    await this.s.send('Log.enable');
     await this.s.send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
   }
 

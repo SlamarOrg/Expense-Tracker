@@ -4,7 +4,8 @@ import { existsSync, mkdtempSync, readdirSync, realpathSync, rmSync, writeFileSy
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { build, transformModule } from '../scripts/build.mjs';
+import { createHash } from 'node:crypto';
+import { build, escapeScript, transformModule } from '../scripts/build.mjs';
 import { checkPage } from '../scripts/render-check.mjs';
 import { launch } from '../scripts/cdp.mjs';
 
@@ -56,6 +57,29 @@ test('the bundle is self-contained, small enough and includes every source modul
   assert.match(build({ withSamples: true }).html, /window\.BSD_DEMO = true/);
 });
 
+test('the bundle has a Content Security Policy that hashes every inline script and allows no requests', () => {
+  for (const withSamples of [false, true]) {
+    const { html } = build({ withSamples });
+    const meta = /<meta http-equiv="Content-Security-Policy" content="([^"]+)">/.exec(html);
+    assert.ok(meta, 'CSP meta present');
+    assert.ok(html.indexOf(meta[0]) < html.indexOf('<style>') && html.indexOf(meta[0]) < html.indexOf('<script'), 'CSP comes before any style or script');
+    const policy = Object.fromEntries(meta[1].split(';').map((d) => d.trim().split(/\s+/)).map(([k, ...v]) => [k, v]));
+    assert.deepEqual(policy['default-src'], ["'none'"]);
+    assert.deepEqual(policy['connect-src'], ["'none'"]);
+    assert.ok(!policy['script-src'].includes("'unsafe-inline'") && !policy['script-src'].includes("'unsafe-eval'"));
+    const bodies = [...html.matchAll(/<script(?![^>]*text\/plain)[^>]*>([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+    assert.equal(bodies.length, withSamples ? 5 : 4, 'error logger, Chart.js, pdf.js, app (and the demo flag)');
+    for (const body of bodies) assert.ok(policy['script-src'].includes(`'sha256-${createHash('sha256').update(body, 'utf8').digest('base64')}'`), 'inline script hash listed');
+    assert.match(html, /<meta name="referrer" content="no-referrer">/);
+  }
+});
+
+test('escapeScript escapes </script and refuses sequences that would confuse the HTML parser', () => {
+  assert.equal(escapeScript('a = "</script>";'), 'a = "<\\/script>";');
+  assert.throws(() => escapeScript('x = "<!--";'), /<!--/);
+  assert.throws(() => escapeScript('x = "<SCRIPT>";'), /<SCRIPT/);
+});
+
 for (const browser of BROWSERS) {
   test(`bundle from file:// in ${browser.split(/[\\/]/).pop()}: imports all three samples, keeps them across a reload`, async () => {
     const dir = mkdtempSync(join(tmpdir(), 'bsd-build-'));
@@ -80,6 +104,14 @@ for (const browser of BROWSERS) {
       const external = page.requests.filter((u) => !u.startsWith('blob:') && !u.startsWith('data:') && u.split('?')[0] !== pathToFileURL(file).href);
       assert.deepEqual(external, [], 'no network requests');
       assert.ok(page.requests.length > 0, 'request logging works');
+      // the Content Security Policy lets the whole app run, and blocks a request if one is ever tried
+      assert.deepEqual(page.log.filter((e) => /Content Security Policy/i.test(e.text)).map((e) => e.text), [], 'no CSP violations');
+      const blocked = await page.eval(`new Promise((resolve) => {
+        document.addEventListener('securitypolicyviolation', (e) => resolve(e.effectiveDirective), { once: true });
+        fetch('https://example.com/collect').catch(() => {});
+        setTimeout(() => resolve('not blocked'), 3000);
+      })`);
+      assert.equal(blocked, 'connect-src');
     } finally {
       await b.close();
       rmSync(dir, { recursive: true, force: true });

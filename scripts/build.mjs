@@ -10,7 +10,11 @@
 // final export statement; the pdf.js worker is inlined as text and started from a Blob URL.
 // Two modules are replaced for the bundle: src/pdfjs-loader.js and src/samples-source.js.
 // --with-samples builds the demo: memory store, samples preloaded, a "fake data" banner.
+// The page carries a Content Security Policy: only its own inline scripts (by hash) and the pdf.js
+// worker Blob may run, and no network request of any kind is allowed, so the "nothing leaves the
+// browser" promise is enforced by the browser, not only by the code.
 
+import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, posix, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -125,7 +129,36 @@ export function collectModules(entry = 'src/app.js') {
 }
 
 // ------------------------------------------------------------------------------- html
-const escapeScript = (s) => s.replace(/<\/script/gi, '<\\/script');
+/**
+ * Inline script text must not end its <script> element early. "</script" is escaped; "<!--" and
+ * "<script" would switch the HTML parser into its escaped script states, where "</script>" no
+ * longer ends the element. They cannot be escaped safely outside string literals, so they fail
+ * the build instead (none of the current sources contain them).
+ */
+export function escapeScript(s) {
+  const bad = /<!--|<script/i.exec(s);
+  if (bad) throw new Error(`inline script contains "${bad[0]}" at offset ${bad.index}; it would confuse the HTML parser`);
+  return s.replace(/<\/script/gi, '<\\/script');
+}
+
+const cspHash = (body) => `'sha256-${createHash('sha256').update(body, 'utf8').digest('base64')}'`;
+
+/** The page policy; scriptBodies are the exact texts of the inline executable scripts. */
+export function contentSecurityPolicy(scriptBodies) {
+  return [
+    "default-src 'none'",
+    `script-src ${scriptBodies.map(cspHash).join(' ')} blob:`,
+    "style-src 'unsafe-inline'",
+    'img-src data: blob:',
+    "connect-src 'none'",
+    "font-src 'none'",
+    "worker-src 'none'",
+    "object-src 'none'",
+    "frame-src 'none'",
+    "base-uri 'none'",
+    "form-action 'none'",
+  ].join('; ');
+}
 
 function pdfjsModuleScript() {
   let lib = read('vendor/pdf.min.mjs');
@@ -162,14 +195,20 @@ export function build({ withSamples = false } = {}) {
     html = html.split(from).join(to);
   };
   swap('<link rel="stylesheet" href="src/styles.css">', `<style>\n${read('src/styles.css')}</style>`);
-  const scripts = [
-    withSamples ? '<script>window.BSD_DEMO = true;</script>' : '',
-    `<script>\n/* Chart.js 4.4.4 | MIT | https://www.chartjs.org */\n${escapeScript(read('vendor/chart.umd.js').replace(/\/\/# sourceMappingURL=\S+\s*$/, ''))}\n</script>`,
-    `<script type="text/plain" id="bsd-pdf-worker">${escapeScript(read('vendor/pdf.worker.min.mjs'))}</script>`,
-    `<script type="module">\n/* pdf.js 4.10.38 | Apache-2.0 | https://mozilla.github.io/pdf.js/ */\n${escapeScript(pdfjsModuleScript())}\n</script>`,
-    `<script type="module">\n${escapeScript(appScript(modules))}</script>`,
-  ].filter(Boolean).join('\n');
+  // [attributes, body]; the text/plain block is data (the pdf.js worker source), never executed
+  const parts = [
+    withSamples ? ['', 'window.BSD_DEMO = true;'] : null,
+    ['', `\n/* Chart.js 4.4.4 | MIT | https://www.chartjs.org */\n${escapeScript(read('vendor/chart.umd.js').replace(/\/\/# sourceMappingURL=\S+\s*$/, ''))}\n`],
+    [' type="text/plain" id="bsd-pdf-worker"', escapeScript(read('vendor/pdf.worker.min.mjs'))],
+    [' type="module"', `\n/* pdf.js 4.10.38 | Apache-2.0 | https://mozilla.github.io/pdf.js/ */\n${escapeScript(pdfjsModuleScript())}\n`],
+    [' type="module"', `\n${escapeScript(appScript(modules))}`],
+  ].filter(Boolean);
+  const scripts = parts.map(([attrs, body]) => `<script${attrs}>${body}</script>`).join('\n');
   swap('<script src="vendor/chart.umd.js"></script>\n<script type="module" src="src/app.js"></script>', scripts);
+  // hash every inline executable script of the final page, index.html's error logger included
+  const inline = [...html.matchAll(/<script(?![^>]*\bsrc=)(?![^>]*text\/plain)[^>]*>([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+  const csp = contentSecurityPolicy(inline);
+  swap('<meta charset="utf-8">\n', `<meta charset="utf-8">\n<meta http-equiv="Content-Security-Policy" content="${csp}">\n<meta name="referrer" content="no-referrer">\n`);
   if (withSamples) html = html.replace('<title>Bank Statement Dashboard</title>', '<title>Bank Statement Dashboard (demo)</title>');
   return { html, modules: [...modules.keys()] };
 }
