@@ -199,3 +199,45 @@ test('importing an overrides file applies it and shows how many assignments came
     server.close();
   }
 });
+
+test('"don\'t remember on this device" empties browser storage, keeps the session, and can be turned back on', { skip }, async () => {
+  const server = await serve(ROOT, 0);
+  const base = `http://127.0.0.1:${server.address().port}/`;
+  const b = await launch({ browser });
+  const storedRows = `new Promise((resolve, reject) => { const r = indexedDB.open('bank-statement-dashboard');
+    r.onsuccess = () => { const db = r.result; if (!db.objectStoreNames.contains('rows')) { db.close(); resolve(0); return; }
+      const c = db.transaction('rows').objectStore('rows').count(); c.onsuccess = () => { db.close(); resolve(c.result); }; };
+    r.onerror = () => reject(r.error); })`;
+  const toggle = 'window.confirm = () => true; document.getElementById("settingsBtn").click(); new Promise((r) => setTimeout(r, 100)).then(() => document.getElementById("noRemember").click())';
+  try {
+    const page = await b.newPage();
+    await page.goto(base);
+    await checkPage(page);
+    await page.setFiles('body > input[type=file]', SAMPLES);
+    await page.waitFor('/47 new transactions/.test(document.getElementById("importPanel").textContent)');
+    assert.equal(await page.eval(storedRows), 47);
+
+    await page.eval(toggle);
+    await page.waitFor('document.getElementById("noRemember") && document.getElementById("noRemember").checked && !document.getElementById("notice").hidden');
+    assert.match(await page.eval('document.getElementById("notice").textContent'), /Nothing is saved on this device/);
+    assert.equal(await page.eval('document.body.dataset.empty || ""'), '', 'the open session keeps its data');
+    assert.equal(await page.eval(storedRows), 0, 'browser storage emptied');
+
+    await page.goto(base);
+    assert.equal((await checkPage(page)).empty, true, 'nothing comes back after a reload');
+    assert.match(await page.eval('document.getElementById("notice").textContent'), /Nothing is saved on this device/);
+    await page.setFiles('body > input[type=file]', SAMPLES);
+    await page.waitFor('/47 new transactions/.test(document.getElementById("importPanel").textContent)');
+    assert.equal(await page.eval(storedRows), 0, 'imports stay in memory');
+
+    await page.eval(toggle);
+    await page.waitFor('document.getElementById("noRemember") && !document.getElementById("noRemember").checked && document.getElementById("notice").hidden');
+    assert.equal(await page.eval(storedRows), 47, 'turning remembering on saves the open session');
+    await page.goto(base);
+    assert.equal((await checkPage(page)).empty, false, 'and it survives a reload');
+    assert.deepEqual(page.exceptions, []);
+  } finally {
+    await b.close();
+    server.close();
+  }
+});

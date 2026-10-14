@@ -196,5 +196,9 @@
   "settings.dataHelp": "Removes every imported transaction, your rules and your category choices from this browser. Theme and language stay.",
   "settings.forget": "Forget my data",
   "settings.forgetConfirm": "Remove all imported transactions, rules and category choices from this browser? This cannot be undone.",
+  "settings.remember": "Don't remember on this device",
+  "settings.rememberHelp": "Keep imported statements only while this page is open. Nothing is written to this browser's storage, so other pages and files opened in this browser cannot read it later. Next time you import your statements again.",
+  "settings.rememberOffConfirm": "Stop saving on this device? The statements, rules and category choices stored in this browser are deleted now. What you imported stays on screen until you close or reload the page.",
+  "notice.notRemembering": "Nothing is saved on this device: imported statements disappear when you close or reload this page. You can change this in Settings.",
   "notice.download": "Download the dashboard"
 }

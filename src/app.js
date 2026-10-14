@@ -1,8 +1,9 @@
 // Wires store, import flow, classifier, overrides and dashboard together.
 //
 // Normal mode: data lives in this browser's IndexedDB; statements are imported by drag and drop
-// or the file picker. Demo mode (?demo=1, or the GitHub Pages build): a memory store preloaded
-// with the fake sample statements, nothing persists. ?theme=dark forces a theme (render check).
+// or the file picker. "Don't remember on this device" (Settings) keeps it in memory instead.
+// Demo mode (?demo=1, or the GitHub Pages build): a memory store preloaded with the fake sample
+// statements, nothing persists. ?theme=dark forces a theme (render check).
 
 import defaultRules from '../rules/default-cz.json' with { type: 'json' };
 import sampleSettings from '../samples/sample-settings.json' with { type: 'json' };
@@ -14,6 +15,7 @@ import { detectLanguage, setLanguage, getLanguage, translateStatic, t, tn } from
 import { Rules } from './classifier/rules.js';
 import { createOverrides } from './store/overrides.js';
 import { openStore } from './store/db.js';
+import { rememberOnDevice, setRememberOnDevice } from './store/remember.js';
 import { importFiles, loadTransactions, sourcesFromImports, forgetAll } from './import-flow.js';
 import { mergeAccounts } from './settings-model.js';
 import { getSampleFiles } from './samples-source.js';
@@ -107,13 +109,40 @@ function setupLanguage() {
   }));
 }
 
+/**
+ * Move the open session between IndexedDB and memory. Turning remembering off copies everything
+ * into memory first and then empties what this browser stored. Returns false when IndexedDB
+ * cannot be opened, so remembering stays off.
+ */
+async function setRemember(on) {
+  const snap = await app.store.snapshot();
+  if (on) {
+    const next = await openStore({ backend: 'indexeddb' });
+    if (next.fallbackReason) { console.warn(next.fallbackReason); showNotice('notice.noStorage', { warn: true }); return false; }
+    await next.restore(snap);
+    app.store = next;
+    setRememberOnDevice(true);
+    showNotice(null);
+  } else {
+    const next = await openStore({ backend: 'memory' });
+    await next.restore(snap);
+    await app.store.clear();
+    app.store = next;
+    setRememberOnDevice(false);
+    showNotice('notice.notRemembering');
+  }
+  return true;
+}
+
 async function main() {
   applyUrlParams();
   translateStatic();
   setupLanguage();
   setupTheme(() => { if (app.dashboard) app.dashboard.renderAll(); });
-  app.store = await openStore({ backend: DEMO ? 'memory' : 'indexeddb' });
+  const remember = !DEMO && rememberOnDevice();
+  app.store = await openStore({ backend: remember ? 'indexeddb' : 'memory' });
   if (DEMO) showNotice('notice.demo', { download: globalThis.BSD_DEMO === true });
+  else if (!remember) showNotice('notice.notRemembering');
   else if (app.store.fallbackReason) { console.warn(app.store.fallbackReason); showNotice('notice.noStorage', { warn: true }); }
 
   app.rulesJson = (await app.store.getSetting('rules', null)) || clone(defaultRules);
@@ -125,7 +154,8 @@ async function main() {
   });
   app.importUi = setupImport({ onFiles: handleFiles, onSamples: loadSamples });
   setupSettings({
-    getState: async () => ({ rulesJson: app.rulesJson, defaults: defaultRules, imports: await app.store.listImports() }),
+    getState: async () => ({ rulesJson: app.rulesJson, defaults: defaultRules, imports: await app.store.listImports(), remember: app.store.backend === 'indexeddb' }),
+    onRememberChange: DEMO ? undefined : setRemember,
     onSave: async (rulesJson) => {
       app.rulesJson = rulesJson;
       await app.store.setSetting('rules', rulesJson);

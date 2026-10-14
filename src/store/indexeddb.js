@@ -73,5 +73,17 @@ export async function createIndexedDbBackend(indexedDB) {
       for (const name of ['rows', 'imports', 'settings']) tx.objectStore(name).clear();
       await done(tx);
     },
+    async snapshot() {
+      return { rows: await this.allRows(), imports: await this.listImports(), settings: await this.allSettings() };
+    },
+    /** Replace everything with a snapshot in one transaction. */
+    async restore(snap) {
+      const tx = db.transaction(['rows', 'imports', 'settings'], 'readwrite');
+      for (const name of ['rows', 'imports', 'settings']) tx.objectStore(name).clear();
+      snap.rows.forEach((r, seq) => tx.objectStore('rows').add({ ...r, seq }));
+      for (const i of snap.imports) tx.objectStore('imports').add(i);
+      for (const [key, value] of Object.entries(snap.settings)) tx.objectStore('settings').put({ key, value });
+      await done(tx);
+    },
   };
 }

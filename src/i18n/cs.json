@@ -208,5 +208,9 @@
   "settings.dataHelp": "Odstraní z tohoto prohlížeče všechny nahrané transakce, vaše pravidla a přiřazení kategorií. Vzhled a jazyk zůstanou.",
   "settings.forget": "Zapomenout moje data",
   "settings.forgetConfirm": "Odstranit z tohoto prohlížeče všechny nahrané transakce, pravidla a přiřazení kategorií? Nelze vrátit zpět.",
+  "settings.remember": "Nepamatovat si na tomto zařízení",
+  "settings.rememberHelp": "Nahrané výpisy se drží jen po dobu, kdy je stránka otevřená. Nic se nezapisuje do úložiště prohlížeče, takže je jiné stránky a soubory otevřené v tomto prohlížeči později nepřečtou. Příště výpisy nahrajete znovu.",
+  "settings.rememberOffConfirm": "Přestat ukládat na tomto zařízení? Výpisy, pravidla a přiřazení kategorií uložená v tomto prohlížeči se teď smažou. Co jste nahráli, zůstane zobrazené, dokud stránku nezavřete nebo nenačtete znovu.",
+  "notice.notRemembering": "Na tomto zařízení se nic neukládá: nahrané výpisy zmizí po zavření nebo novém načtení stránky. Změnit to můžete v Nastavení.",
   "notice.download": "Stáhnout dashboard"
 }

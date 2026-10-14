@@ -26,5 +26,11 @@ export function createMemoryBackend() {
     async setSetting(key, value) { settings.set(key, clone(value)); },
     async allSettings() { const o = {}; for (const [k, v] of settings) o[k] = clone(v); return o; },
     async clear() { rows = new Map(); imports = []; settings = new Map(); },
+    async snapshot() { return { rows: [...rows.values()].map(clone), imports: imports.map(clone), settings: Object.fromEntries([...settings].map(([k, v]) => [k, clone(v)])) }; },
+    async restore(snap) {
+      rows = new Map(snap.rows.map((r) => [r.id, clone(r)]));
+      imports = snap.imports.map(clone);
+      settings = new Map(Object.entries(snap.settings).map(([k, v]) => [k, clone(v)]));
+    },
   };
 }

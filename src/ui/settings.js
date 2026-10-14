@@ -30,16 +30,17 @@ function field(id, label, help, value, rows = 4) {
 
 /**
  * @param {{
- *   getState: () => Promise<{rulesJson: object, defaults: object, imports: object[]}>,
+ *   getState: () => Promise<{rulesJson: object, defaults: object, imports: object[], remember?: boolean}>,
  *   onSave: (rulesJson: object) => Promise<void>,
  *   onForget?: () => Promise<void>,
+ *   onRememberChange?: (remember: boolean) => Promise<boolean>,
  * }} deps
  */
-export function setupSettings({ getState, onSave, onForget }) {
+export function setupSettings({ getState, onSave, onForget, onRememberChange }) {
   const dialog = document.getElementById('settings');
 
   async function render(message = '') {
-    const { rulesJson, defaults, imports } = await getState();
+    const { rulesJson, defaults, imports, remember } = await getState();
     const categories = Rules.from(rulesJson).categoryNames.filter((c) => c !== 'Other');
     const box = clear(dialog);
 
@@ -127,6 +128,23 @@ export function setupSettings({ getState, onSave, onForget }) {
     if (onForget) {
       const danger = el('div', 'settings-section');
       danger.appendChild(el('h3', null, i18n.t('settings.dataTitle')));
+      if (onRememberChange) {
+        const label = el('label', 'switch');
+        const box = document.createElement('input');
+        box.type = 'checkbox';
+        box.id = 'noRemember';
+        box.checked = !remember;
+        label.appendChild(box);
+        label.appendChild(el('span', null, i18n.t('settings.remember')));
+        box.addEventListener('change', async () => {
+          if (box.checked && !confirm(i18n.t('settings.rememberOffConfirm'))) { box.checked = false; return; }
+          box.disabled = true;
+          if (!(await onRememberChange(!box.checked))) box.checked = !box.checked;
+          await render();
+        });
+        danger.appendChild(label);
+        danger.appendChild(el('p', 'hint', i18n.t('settings.rememberHelp')));
+      }
       danger.appendChild(el('p', 'hint', i18n.t('settings.dataHelp')));
       const forget = el('button', 'btn danger', i18n.t('settings.forget'));
       forget.type = 'button';

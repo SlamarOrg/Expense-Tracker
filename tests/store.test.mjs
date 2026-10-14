@@ -64,3 +64,22 @@ test('unknown backend is rejected, indexeddb falls back to memory outside a brow
   assert.equal(s.backend, 'memory');
   assert.match(s.fallbackReason, /IndexedDB/);
 });
+
+test('snapshot and restore move rows, imports and settings into another store unchanged', async () => {
+  const a = await openStore({ backend: 'memory' });
+  await a.putRows([row('a'), row('b')], { file: 'x.csv', bank: 'FIO' });
+  await a.putRows([row('c')], { file: 'y.csv', bank: 'FIO' });
+  await a.setSetting('rules', { categories: { Food: ['billa'] } });
+  const snap = await a.snapshot();
+  const b = await openStore({ backend: 'memory' });
+  await b.setSetting('stale', true);
+  await b.restore(snap);
+  assert.deepEqual(await b.allRows(), await a.allRows());
+  assert.deepEqual(await b.listImports(), await a.listImports());
+  assert.deepEqual(await b.allSettings(), { rules: { categories: { Food: ['billa'] } } }, 'restore replaces, it does not merge');
+  snap.rows[0].merchant = 'changed';
+  assert.equal((await b.allRows())[0].merchant, 'ma', 'the restored store keeps its own copies');
+  const r = await b.putRows([row('c'), row('d')], { file: 'z.csv', bank: 'FIO' });
+  assert.deepEqual(r, { added: 1, skipped: 1 }, 'dedup keeps working after a restore');
+  assert.equal((await b.listImports()).length, 3);
+});
