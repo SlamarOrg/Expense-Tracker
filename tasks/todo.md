@@ -50,8 +50,8 @@ strategies.
 **Scope:** M
 
 ## Checkpoint A: Spike decided
-- [ ] Extraction order, diacritics and `file://` strategy proven, or the plan is revised around Air Bank CSV with Martin's approval
-- [ ] Martin reviews before Phase 1 continues past T6
+- [x] Extraction order, diacritics and `file://` strategy proven, or the plan is revised around Air Bank CSV with Martin's approval (proven in Chrome and Edge, fake worker plus Blob URL; Firefox untested)
+- [x] Martin reviews before Phase 1 continues past T6 (autonomous run: no separate review; folded into Martin's acceptance of the final state on 2026-10-13)
 
 ## Phase 1: Classifier and foundations
 
@@ -234,8 +234,8 @@ on his real statements with his real rules (both outside the repo) and compares.
 **Scope:** S
 
 ## Checkpoint B: Parsers match Python
-- [ ] All Phase 1 and 2 tests green; samples parse with zero problems
-- [ ] Private comparison done and reviewed with Martin
+- [x] All Phase 1 and 2 tests green; samples parse with zero problems
+- [x] Private comparison done and reviewed with Martin (evidence in plan.md; Martin accepted both differences on 2026-10-13)
 
 ## Phase 3: Dashboard
 
@@ -296,8 +296,8 @@ a screenshot. Browser found via `$BROWSER` then default paths.
 **Scope:** S
 
 ## Checkpoint C: Dashboard renders samples
-- [ ] Feature walk complete, render-check green in light and dark
-- [ ] Review with Martin
+- [x] Feature walk complete, render-check green in light and dark (browser tests and render checks in CI)
+- [x] Review with Martin (autonomous run: no separate review; folded into Martin's acceptance of the final state on 2026-10-13)
 
 ## Phase 4: Import and settings
 
@@ -377,8 +377,8 @@ that clears the store and reloads to the empty state.
 **Scope:** S
 
 ## Checkpoint D: Import flow complete
-- [ ] Samples in any order yield the same store; re-import adds zero rows; settings re-categorize; reload persists
-- [ ] Review with Martin
+- [x] Samples in any order yield the same store; re-import adds zero rows; settings re-categorize; reload persists (import-flow and browser tests)
+- [x] Review with Martin (autonomous run: no separate review; folded into Martin's acceptance of the final state on 2026-10-13)
 
 ## Phase 5: Languages
 
