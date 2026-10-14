@@ -69,3 +69,19 @@ test('markSaved hands the new baseline to persistSaved, reset empties everything
   assert.deepEqual(o.all(), {});
   assert.equal(o.savedCount(), 0);
 });
+
+test('regression: merchants named like Object.prototype members are plain keys, not inherited values', () => {
+  // A merchant called "constructor" used to get the Object function as its category.
+  const o = createOverrides({ saved: {} });
+  const rows = ['constructor', 'toString', '__proto__', 'hasOwnProperty'].map((m) => ({ k: 'expense', m, t: '', c0: 'Other', c: 'Other' }));
+  applyOverrides(rows, o);
+  assert.deepEqual(rows.map((r) => r.c), ['Other', 'Other', 'Other', 'Other']);
+  const r = o.merge(JSON.parse('{"__proto__": "Groceries", "constructor": "Travel"}'));
+  assert.deepEqual(r, { added: 2, ignored: 0 });
+  assert.equal(o.get('__proto__'), 'Groceries');
+  assert.equal(o.get('constructor'), 'Travel');
+  assert.equal(o.get('toString'), undefined);
+  assert.deepEqual(JSON.parse(o.toJSON()), JSON.parse('{"__proto__": "Groceries", "constructor": "Travel"}'));
+  assert.equal(o.unsavedCount(), 2);
+  assert.equal({}.polluted, undefined);
+});
