@@ -57,6 +57,14 @@ test('the bundle is self-contained, small enough and includes every source modul
   assert.match(build({ withSamples: true }).html, /window\.BSD_DEMO = true/);
 });
 
+test('the build is reproducible: the same sources give byte-identical output', () => {
+  // Release notes promise that building the tag reproduces the published file (checked once
+  // between a Windows build and the Linux CI build); no timestamps or random ids may creep in.
+  assert.equal(build().html, build().html);
+  assert.equal(build({ withSamples: true }).html, build({ withSamples: true }).html);
+  assert.doesNotMatch(build().html, /20\d\d-\d\d-\d\dT\d\d:\d\d/, 'no build timestamp');
+});
+
 test('the bundle has a Content Security Policy that hashes every inline script and allows no requests', () => {
   for (const withSamples of [false, true]) {
     const { html } = build({ withSamples });

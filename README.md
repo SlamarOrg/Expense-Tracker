@@ -34,9 +34,12 @@ The interface is in English and Czech. Parsers for other banks are welcome, see
 
 ## Use it
 
-1. Get the dashboard, a single file named `dashboard.html`. Save it from
+1. Get the dashboard, a single file named `dashboard.html`. Download it from the
+   [latest release](https://github.com/SlamarOrg/Expense-Tracker/releases/latest), save it from
    [the project site](https://slamarorg.github.io/Expense-Tracker/dashboard.html), or build it
-   yourself (see Development below).
+   yourself (see Development below). Each release lists the file's SHA-256; check it with
+   `Get-FileHash dashboard.html` (PowerShell) or `shasum -a 256 dashboard.html`. The build is
+   reproducible: `node scripts/build.mjs` on the release tag produces the identical file.
 2. Open it in a current browser; double-clicking the file is enough. It is tested in Chrome and
    Edge.
 3. Export your statements from internet banking (see below) and drop them onto the page, or click
