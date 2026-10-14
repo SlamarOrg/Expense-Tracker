@@ -492,5 +492,5 @@ Final denylist scan with the full list, success criteria ticked with evidence.
 **Scope:** S
 
 ## Checkpoint E: Success criteria
-- [ ] Martin creates the remote, pushes, and confirms CI and Pages green
+- [x] Martin creates the remote, pushes, and confirms CI and Pages green (2026-10-13, `c0933be`: CI green on Node 22 and 24, Pages deployed, the live demo and `dashboard.html` pass render-check)
 - [x] Vault ADR written after approval (`Architecture/adr-browser-only-open-source-dashboard.md` in the vault)
