@@ -8,6 +8,7 @@
 import { el, clear } from './dom.js';
 import { showTip, tipRow } from './tooltip.js';
 import { applyOverrides } from '../store/overrides.js';
+import { transactionsCsv } from './csv-export.js';
 import * as i18n from '../i18n/index.js';
 
 /**
@@ -584,11 +585,7 @@ export function mountDashboard(DATA) {
   on(document.getElementById('trendCat'), 'change', (e) => { state.trendCat = e.target.value; renderTrend(TX.filter(t => baseFilter(t) && inRange(t, state.from, state.to))); });
   let searchTimer; on(document.getElementById('search'), 'input', (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => { state.search = e.target.value; state.shown = 150; renderTransactions(selected()); }, 120); });
   on(document.getElementById('exportBtn'), 'click', () => {
-    const list = renderTransactions.current || [];
-    const esc = (s) => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"';
-    const lines = ['date,merchant,note,category,bank,type,amount_czk,original_amount,currency'];
-    for (const t of list) lines.push([t.d, esc(t.m), esc(t.n), esc(t.c), t.s, esc(t.t), t.amt, t.orig, t.cur].join(','));
-    const blob = new Blob(['﻿' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+    const blob = new Blob([transactionsCsv(renderTransactions.current || [])], { type: 'text/csv;charset=utf-8' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'spending_' + state.from + '_' + state.to + '.csv'; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
   });
   let resizeTimer; on(window, 'resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => renderKPIs(selected()), 150); });
